@@ -59,10 +59,16 @@ def file_to_mats(filename, frame, Include_Base_State=True):
 d = 0.3521
 files = glob.glob(dir + '/Even_Parity/*.h5')
 print(files[:])
-# Make the plot
+#Make the plot
 fig, ax = plt.subplots(1, len(files), subplot_kw=dict(projection='polar'), figsize=(18, 4), layout='constrained')  	
+
 #for file, ax_i, frame, label in zip(files, [ax[2], ax[0], ax[1], ax[3]], [20, 35, 28, 40], [r'(c)', r'(a)', r'(b)', r'(d)']):
+
+# pole-convecton (+), pole-convecton (-), eq-convecton (+), eq-convecton (-)
 for file, ax_i, frame, label in zip(files, [ax[0], ax[1], ax[3], ax[2]], [25, 28, 20, 40], [r'(a)', r'(b)', r'(d)', r'(c)']):
+
+# eq-convecton (+), eq-convecton (-), pole-convecton (+), pole-convecton (-), 
+# for file, ax_i, frame, label in zip(files, [ax[2], ax[3], ax[1], ax[0]], [25, 28, 20, 40], [r'(c)', r'(d)', r'(b)', r'(a)']):
     ax_i.set_theta_zero_location("S")
     ax_i.set_ylim(0, (1+d)/d)
     ax_i.set_rgrids([])
@@ -78,7 +84,8 @@ for file, ax_i, frame, label in zip(files, [ax[0], ax[1], ax[3], ax[2]], [25, 28
     ax_i.annotate(label, xy=(-0.05, 0.95), xycoords='axes fraction', fontsize=20)
 
 
-plt.savefig('Localised_Solutions_Even_Plot.png', format='png', dpi=100)
+#plt.savefig('Localised_Solutions_Even_Plot_convectons_anticonvectons.png', format='png', dpi=100)
+plt.savefig('Localised_Solutions_Even_Plot_anticonvectons_convectons.png', format='png', dpi=100)
 plt.show()
 
 # %%
@@ -87,8 +94,9 @@ d = 0.31325
 files = glob.glob(dir + '/Odd_Parity/*.h5')
 print(files)
 # Make the plot
-fig, ax = plt.subplots(1, len(files), subplot_kw=dict(projection='polar'), figsize=(9, 4), layout='constrained')  	
-for file, ax_i, frame, label in zip(files, ax, [5, -1], [r'(a)', r'(b)']):
+fig, ax = plt.subplots(1, 2, subplot_kw=dict(projection='polar'), figsize=(9, 4), layout='constrained')  	
+for file, ax_i, frame, label in zip(files, ax, [40, 1], [r'(a)', r'(b)']):
+#for file, ax_i, frame, label in zip(files, [ax[1], ax[0]], [1, 40], [r'(b)', r'(a)']):
     ax_i.set_theta_zero_location("S")
     ax_i.set_ylim(0, (1+d)/d)
     #ax_i.axis("off")

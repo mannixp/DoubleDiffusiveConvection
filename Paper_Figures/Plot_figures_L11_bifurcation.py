@@ -84,7 +84,7 @@ dir = '/home/pmannix/Spatial_Localisation/SpectralDoubleDiffusiveConvection/Pape
 
 # %%
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
-# L = 11 two pulse close up Ras=150
+# L = 11 one-pulse
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(16, 6), layout='constrained')
 
@@ -120,3 +120,51 @@ plt.savefig('L11_bifurcation_Ras150.png', format='png', dpi=100)
 plt.show()
 
 # %%
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
+# L = 11 one-pulse what happens
+# ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
+
+fig, ax = plt.subplots(nrows=1, ncols=6, figsize=(16, 6), layout='constrained')
+
+# A) Plot the bifurcation diagram
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[0], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[0], line='b-.')
+ax[0].set_xlim([2800, 3250])
+ax[0].set_ylim([0, 1])
+
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[1], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[1], line='b-.')
+ax[1].set_xlim([3250,3650])
+ax[1].set_ylim([0, 0.025])
+
+
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[2], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[2], line='b-.')
+ax[2].set_xlim([3650,4000])
+ax[2].set_ylim([0, 0.007])
+
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[3], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[3], line='b-.')
+ax[3].set_xlim([4000, 4400])
+ax[3].set_ylim([0.0005, 0.003])
+
+
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[4], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[4], line='b-.')
+ax[4].set_xlim([4400, 4520])
+ax[4].set_ylim([0.0002, 0.001])
+
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[5], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[5], line='b-.')
+ax[5].set_xlim([4513, 4520])
+ax[5].set_ylim([0.0002, 0.00035])
+
+ax[0].set_ylabel(r'$\mathcal{E}$', fontsize=25)
+for ax_i in ax:
+    ax_i.set_xlabel(r'$Ra_T$', fontsize=25)
+    ax_i.tick_params(axis='both', labelsize=25)
+
+plt.savefig('L11_bifurcation_Ras150_branch_details.png', format='png', dpi=100)
+plt.show()

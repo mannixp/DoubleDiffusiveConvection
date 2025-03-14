@@ -427,7 +427,7 @@ def Time_Step(open_filename=None, frame=-1, d_new=0.31325, Ra_new = 3750.00):
 	return filename;
 
 
-def _Newton(X, Ra, Ra_s, Tau, Pr, d, N_fm, N_r, symmetric, dt=1, tol_newton=1e-08, tol_gmres=1e-04, Krylov_Space_Size=300):
+def _Newton(X, Ra, Ra_s, Tau, Pr, d, N_fm, N_r, symmetric, dt=.1, tol_newton=1e-08, tol_gmres=1e-04, Krylov_Space_Size=300):
 	
 	"""
 	Given a starting point and a control parameter compute a new steady-state using Newton iteration
@@ -605,25 +605,24 @@ def Newton(fac, open_filename='NewtonSolve_0.h5', save_filename='NewtonSolve_0.h
 	if open_filename.endswith('.npy'):
 		X  = np.load(open_filename);
 
-		# ~~~~~# L = 11 Gap #~~~~~~~~~#
-		d = 0.31325
-		Ra_s = 150
+		# # ~~~~~# L = 11 Gap #~~~~~~~~~#
+		# l = 11
+		# d = 0.31325
+		# Ra_s = 400
+		# Ra = 8275.70
 		
-		#Ra   = 4525.905436208907; l = 11.0
-
-		Ra   = 4619.4177321044945; l = 13.0
-
 		# ~~~~~# L = 10 Gap #~~~~~~~~~#
-		#d = 0.3521; l=10.0; 
-		# Ra = 9851.537357677651; # steady
-		# Ra = 2965.1798389922933; # hopf
+		l = 10
+		d = 0.3521
+		Ra_s = 400
+		Ra = 8351.53
 
 		Ra    -=5e-03
 		
-		Tau    = 1./15.;
+		Tau    = 1./15.
 		Pr     = 1.
-		N_fm   = 64; #300
-		N_r    = 20; #30
+		N_fm   = 64
+		N_r    = 20 
 
 		st_time= 0.
 
@@ -668,7 +667,7 @@ def Newton(fac, open_filename='NewtonSolve_0.h5', save_filename='NewtonSolve_0.h
 	f.close();
 
 	from Plot_Tools import Cartesian_Plot, Energy
-	Cartesian_Plot(filename,frame=-1,Include_Base_State=True)
+	Cartesian_Plot(filename,frame=-1,Include_Base_State=False)
 	Energy(filename,frame=-1)
 
 	return None;
@@ -739,7 +738,7 @@ def _NewtonC(Y, sign, ds, **kwargs_f):
 		return Y    ,sign,ds,	Norm,KE,NuT,NuS,	exitcode;
 
 
-def _ContinC(Y_0_dot, Y_0, sign, ds, Ra, Ra_s, Tau, Pr, d, N_fm, N_r, symmetric, dt=1, tol_newton=1e-08, tol_gmres=1e-04, Krylov_Space_Size=300):
+def _ContinC(Y_0_dot, Y_0, sign, ds, Ra, Ra_s, Tau, Pr, d, N_fm, N_r, symmetric, dt=.1, tol_newton=1e-08, tol_gmres=1e-04, Krylov_Space_Size=300):
 
 	"""
 	Given a starting point and a control parameter compute a new steady-state using Newton iteration
@@ -1091,14 +1090,14 @@ def Continuation(open_filename, frame=-1):
 
 		# ~~~~~~~~~ Interpolate ~~~~~~~~~~~~~~~~~~~
 		from Matrix_Operators import INTERP_RADIAL,INTERP_THETAS
-		N_r_n  = 32; X = INTERP_RADIAL(N_r_n,N_r,X,d);
-		N_fm_n = 256; X = INTERP_THETAS(N_fm_n,N_fm,X);
+		N_r_n  = N_r; X = INTERP_RADIAL(N_r_n,N_r,X,d);
+		N_fm_n = 64; X = INTERP_THETAS(N_fm_n,N_fm,X);
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	sign   = 1;
-	N_steps= 500;
+	N_steps= 250;
 	Y      = np.hstack( (X,Ra) );
-	kwargs = {"Ra":Ra,"Ra_s":Ra_s,"Tau":Tau,"Pr":Pr,"d":d,"N_fm":N_fm_n,"N_r":N_r_n, "symmetric":False}
+	kwargs = {"Ra":Ra,"Ra_s":Ra_s,"Tau":Tau,"Pr":Pr,"d":d,"N_fm":N_fm_n,"N_r":N_r_n, "symmetric":True}
 
 	save_filename = uniquify(open_filename)
 	
@@ -1199,19 +1198,20 @@ if __name__ == "__main__":
 	print("Initialising the code for running...")
 
 	# %%
-	#file = "Continuationl11Ras150_0.h5"
-	#Continuation(open_filename=file,frame=-2)
+	#file = "AntiConvectonL10PlusRas400_3.h5"
+	#Continuation(open_filename=file,frame=-3)
 	#trim(filename='Continuationl11Ras150_0.h5',point=-4)
 	#_plot_bif(filename='Continuationl11Ras150_0.h5',point=-4) #  Good start point
 
 	# %%
-	#filename = "/home/pmannix/Spatial_Localisation/SpectralDoubleDiffusiveConvection/Figure_L11/Anti_Convectons/Continuationl11Ras150_0.h5"
-	#Newton(fac=5e-3,open_filename=filename,frame=7)
+	#filename = "EigVec_l10.npy"
+	#Newton(fac=-1e-2,open_filename=filename,frame=-1)
 
+	# %%
 	from Plot_Tools import Cartesian_Plot, Energy,Uradial_plot
-	filename = "/home/pmannix/Spatial_Localisation/SpectralDoubleDiffusiveConvection/Figure_L11/Anti_Convectons_Plus/Continuationl11Ras150_1.h5"
-	_plot_bif(filename,point=30)
-	#Cartesian_Plot(filename,frame=-1,Include_Base_State=False)
+	filename = "AntiConvectonL10PlusRas400_4.h5"
+	_plot_bif(filename,point=-3)
+	Cartesian_Plot(filename,frame=1,Include_Base_State=False)
 	#Energy(filename,frame=-1)
 # %%
 	
