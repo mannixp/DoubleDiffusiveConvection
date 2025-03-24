@@ -62,7 +62,7 @@ def Plot_full_bif(folder, ax, line='k-'):
     N_fm_fold = []
     N_r_fold = []
     for filename in glob.glob(folder + '/*.h5'):
-      
+        
         obj = result()
         with h5py.File(filename, 'r') as f:
             ff = f["Bifurcation"]
@@ -130,6 +130,32 @@ dir = '/home/pmannix/Spatial_Localisation/SpectralDoubleDiffusiveConvection/Pape
 
 # %%
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
+# L = 10 Large
+# ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
+
+# fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(16, 6), layout='constrained', sharey=True)
+
+
+# # A) Plot the bifurcation diagram
+
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras303_Convectons/Upper/', ax, line='c-')
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras303_Convectons/Lower/', ax, line='k-')
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras303_AntiConvectons/', ax, line='k:')
+# ax.set_title(r'$Ra_S = 303$', fontsize=25)
+
+# ax.set_xlabel(r'$Ra_T$', fontsize=25)
+# ax.tick_params(axis='both', labelsize=25)
+# ax.set_xlim([2700, 3750])
+# ax.set_ylim([0, 7])
+
+# #plt.savefig('Bifurcation_L10Plus_Ras_Compare_zoom.png', format='png', dpi=100)
+# plt.show()
+
+
+
+# %%
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
 # L = 10 Large
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,28 +179,49 @@ X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras200_Convectons/
 X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras200_AntiConvectons/', axs[i], line='k:') # Low Res
 axs[i].set_title(r'$Ra_S = 200$', fontsize=25)
 
-i = 2
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras250_Convectons/Upper/', axs[i], line='c-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras250_Convectons/Lower/', axs[i], line='k-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras250_AntiConvectons/', axs[i], line='k:')
-axs[i].set_title(r'$Ra_S = 250$', fontsize=25)
+# i = 2
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras250_Convectons/Upper/', axs[i], line='c-')
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras250_Convectons/Lower/', axs[i], line='k-')
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras250_AntiConvectons/', axs[i], line='k:')
+# axs[i].set_title(r'$Ra_S = 250$', fontsize=25)
 
-i = 3
+i = 2
 X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras300_Convectons/Upper/', axs[i], line='c-')
 X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras300_Convectons/Lower/', axs[i], line='k-')
 X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras300_AntiConvectons/', axs[i], line='k:')
 axs[i].set_title(r'$Ra_S = 300$', fontsize=25)
 
+
+i = 3
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras303_Convectons/Upper/', axs[i], line='c-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras303_Convectons/Lower/', axs[i], line='k-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras303_AntiConvectons/', axs[i], line='k:')
+axs[i].set_title(r'$Ra_S = 303$', fontsize=25)
+
+
 i = 4
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras400_Convectons/', axs[i], line='k-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras400_AntiConvectons/', axs[i], line='k:')
-axs[i].set_title(r'$Ra_S = 400$', fontsize=25)
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras306.125_Convectons/Upper/', axs[i], line='c-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras306.125_Convectons/Lower/', axs[i], line='k-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras306.125_AntiConvectons/', axs[i], line='k:')
+axs[i].set_title(r'$Ra_S = 306.125$', fontsize=25)
+
+# i = 5
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras325_Convectons/Upper/', axs[i], line='c-')
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras325_Convectons/Lower/', axs[i], line='k-')
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras325_AntiConvectons/', axs[i], line='k:')
+# axs[i].set_title(r'$Ra_S = 325$', fontsize=25)
+
+# i = 6
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras400_Convectons/Upper/', axs[i], line='c-')
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras400_Convectons/Lower/', axs[i], line='k-')
+# X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Ras400_AntiConvectons/', axs[i], line='k:')
+# axs[i].set_title(r'$Ra_S = 400$', fontsize=25)
 
 for ax in axs:
     ax.set_xlabel(r'$Ra_T$', fontsize=25)
     ax.tick_params(axis='both', labelsize=25)
     ax.set_xlim([2700, 3750])
-    ax.set_ylim([0, 7])
+    ax.set_ylim([0, 6])
 
 plt.savefig('Bifurcation_L10Plus_Ras_Compare.png', format='png', dpi=100)
 plt.show()

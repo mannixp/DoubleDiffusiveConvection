@@ -427,7 +427,7 @@ def Time_Step(open_filename=None, frame=-1, d_new=0.31325, Ra_new = 3750.00):
 	return filename;
 
 
-def _Newton(X, Ra, Ra_s, Tau, Pr, d, N_fm, N_r, symmetric, dt=.1, tol_newton=1e-08, tol_gmres=1e-04, Krylov_Space_Size=300):
+def _Newton(X, Ra, Ra_s, Tau, Pr, d, N_fm, N_r, symmetric, dt=10**4, tol_newton=1e-08, tol_gmres=1e-04, Krylov_Space_Size=300):
 	
 	"""
 	Given a starting point and a control parameter compute a new steady-state using Newton iteration
@@ -738,7 +738,7 @@ def _NewtonC(Y, sign, ds, **kwargs_f):
 		return Y    ,sign,ds,	Norm,KE,NuT,NuS,	exitcode;
 
 
-def _ContinC(Y_0_dot, Y_0, sign, ds, Ra, Ra_s, Tau, Pr, d, N_fm, N_r, symmetric, dt=.1, tol_newton=1e-08, tol_gmres=1e-04, Krylov_Space_Size=300):
+def _ContinC(Y_0_dot, Y_0, sign, ds, Ra, Ra_s, Tau, Pr, d, N_fm, N_r, symmetric, dt=10**4, tol_newton=1e-08, tol_gmres=1e-04, Krylov_Space_Size=300):
 
 	"""
 	Given a starting point and a control parameter compute a new steady-state using Newton iteration
@@ -966,7 +966,7 @@ def _Continuation(filename, N_steps, sign, Y, **kwargs):
 	# Default parameters	
 	ds    =0.01; # The starting step size	
 	ds_min=1.0; #Threshold to switching between Newton & Psuedo
-	ds_max=10.0; # Max Newton step
+	ds_max=1.5; # Max Newton step
 
 	Result = result()
 	
@@ -1090,12 +1090,12 @@ def Continuation(open_filename, frame=-1):
 
 		# ~~~~~~~~~ Interpolate ~~~~~~~~~~~~~~~~~~~
 		from Matrix_Operators import INTERP_RADIAL,INTERP_THETAS
-		N_r_n  = N_r; X = INTERP_RADIAL(N_r_n,N_r,X,d);
-		N_fm_n = 64; X = INTERP_THETAS(N_fm_n,N_fm,X);
+		N_r_n  = 25; X = INTERP_RADIAL(N_r_n,N_r,X,d);
+		N_fm_n = 128; X = INTERP_THETAS(N_fm_n,N_fm,X);
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	sign   = 1;
-	N_steps= 250;
+	sign   = -1;
+	N_steps= 500;
 	Y      = np.hstack( (X,Ra) );
 	kwargs = {"Ra":Ra,"Ra_s":Ra_s,"Tau":Tau,"Pr":Pr,"d":d,"N_fm":N_fm_n,"N_r":N_r_n, "symmetric":True}
 
@@ -1198,8 +1198,8 @@ if __name__ == "__main__":
 	print("Initialising the code for running...")
 
 	# %%
-	#file = "AntiConvectonL10PlusRas400_3.h5"
-	#Continuation(open_filename=file,frame=-3)
+	#file = "ConvectonL10PlusRas303_6.h5"
+	#Continuation(open_filename=file,frame=18)
 	#trim(filename='Continuationl11Ras150_0.h5',point=-4)
 	#_plot_bif(filename='Continuationl11Ras150_0.h5',point=-4) #  Good start point
 
@@ -1209,9 +1209,9 @@ if __name__ == "__main__":
 
 	# %%
 	from Plot_Tools import Cartesian_Plot, Energy,Uradial_plot
-	filename = "AntiConvectonL10PlusRas400_4.h5"
-	_plot_bif(filename,point=-3)
-	Cartesian_Plot(filename,frame=1,Include_Base_State=False)
+	filename = "ConvectonL10PlusRas303_7.h5"
+	_plot_bif(filename,point=-1)
+	#Cartesian_Plot(filename,frame=-1,Include_Base_State=False)
 	#Energy(filename,frame=-1)
 # %%
 	

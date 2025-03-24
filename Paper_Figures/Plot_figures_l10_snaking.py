@@ -483,3 +483,81 @@ Add_Label(X_folds, Nr_folds, Nfm_folds, Ra_folds, ax)
 
 plt.savefig('L10_Plus_AntiConvectons_Ras175.png', format='png', dpi=100)
 plt.show()
+
+
+
+
+# %%
+# ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
+# (L^{A+}_10) L = 10 Plus Convectons Ra_s = 175 (Blue branch)
+# ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
+
+fig, axs = plt.subplots(nrows=7, ncols=2, figsize=(16, 6), layout='constrained')
+
+# remove the underlying Axes in the right column
+gs = axs[1, 0].get_gridspec()
+for axl in axs[:, 0]:
+    axl.remove()
+ax = fig.add_subplot(gs[:, 0])
+
+# A) Plot the bifurcation diagram
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Convectons_Plus_Ras175/', ax, line='c-')
+
+ax.set_ylabel(r'$\mathcal{E}$', fontsize=25)
+ax.set_xlabel(r'$Ra_T$', fontsize=25)
+ax.tick_params(axis='both', labelsize=25)
+ax.set_ylim([1, 4])
+ax.set_xlim([2940, 3040])
+ax.tick_params(axis='both', labelsize=25)
+
+
+# L=10 Minus eigenvector from KE = 0
+obj = result()
+with h5py.File(dir + 'Convectons_Plus_Ras175/' + "ConvectonL10PlusRas175_3.h5", 'r') as f:
+    ff = f["Bifurcation"]
+    for key in ff.keys():
+        setattr(obj, key, ff[key][()])
+    N_fm = f['Parameters']["N_fm"][()]
+    N_r = f['Parameters']["N_r"][()]
+    
+    D, R = cheb_radial(N_r, d)
+    
+    point = 25
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, 'bs')
+    
+    X_folds.insert(5, obj.X_DATA[point])
+    Ra_folds.insert(5, obj.Ra_DATA[point])
+    Nr_folds.insert(5, N_r)
+    Nfm_folds.insert(5, N_fm)
+
+obj = result()
+with h5py.File(dir + 'Convectons_Plus_Ras175/' + "ConvectonL10PlusRas175_1.h5", 'r') as f:
+    ff = f["Bifurcation"]
+    for key in ff.keys():
+        setattr(obj, key, ff[key][()])
+    N_fm = f['Parameters']["N_fm"][()]
+    N_r = f['Parameters']["N_r"][()]
+    
+    D, R = cheb_radial(N_r, d)
+    
+    point = 37
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, 'bs')
+    
+    X_folds.insert(0, obj.X_DATA[point])
+    Ra_folds.insert(0, obj.Ra_DATA[point])
+    Nr_folds.insert(0, N_r)
+    Nfm_folds.insert(0, N_fm)
+
+# D) Plot the points out in terms of their stream-function
+Psi_Plot(X_folds, Nr_folds, Nfm_folds, axs=axs[:, 1])
+
+for count in range(6+1):
+    axs[::-1, 1][count].annotate(r'%d' % count, xy=(-0.05, 0.5), xycoords='axes fraction', fontsize=20)
+
+# E) Add labels
+Add_Label(X_folds[::-1], Nr_folds[::-1], Nfm_folds[::-1], Ra_folds[::-1], ax)
+
+plt.savefig('L10_Plus_Convectons_Ras175.png', format='png', dpi=100)
+plt.show()
