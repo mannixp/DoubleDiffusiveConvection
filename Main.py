@@ -421,11 +421,11 @@ def Time_Step(open_filename=None, frame=-1, d_new=0.31325, Ra_new = 3750.00):
 	# Tau    = 1./15.;
 	# Pr     = 1.
 
-	Ra = 2280.0
-	d = 0.31325 
-	Tau = 1.
-	Pr = 1.
-	Ra_s = 0.
+	# Ra = 2280.0
+	# d = 0.31325 
+	# Tau = 1.
+	# Pr = 1.
+	# Ra_s = 0.
 
 	# Ra = 2360.0
 	# d = 0.353 
@@ -433,14 +433,40 @@ def Time_Step(open_filename=None, frame=-1, d_new=0.31325, Ra_new = 3750.00):
 	# Pr = 1.
 	# Ra_s = 0.
 
+	# N_fm = 48;
+	# N_r  = 24;
 
-	N_fm = 48;
-	N_r  = 24;
+	# # ~~~~~# L = 7 Gap #~~~~~~~~~#
+	# Γ = 6 
+	# R_1 = 1
+	# d = (R_1 * np.pi)/Γ
+	# Ra = 8700 # steady
+	# Ra = 4000 # hopf
+	
+	# Ra_s   = 400.
+	# Tau    = 1./15.
+	# Pr     = 1.
 
-	N_fm_n = 48;
-	N_r_n  = 24;
+	# N_fm = 128
+	# N_r  = 20
 
 
+	# ~~~~~# L = 21 Gap #~~~~~~~~~#
+	Γ = 20 
+	R_1 = 1
+	d = (R_1 * np.pi)/Γ
+	Ra = 8000 # steady
+	Ra = 3000 # hopf
+	
+	Ra_s   = 400.
+	Tau    = 1./15.
+	Pr     = 1.
+
+	N_fm = 256
+	N_r  = 20
+
+	N_fm_n = N_fm
+	N_r_n  = N_r
 
 	# ~~~~~~~~~ Random Initial Conditions ~~~~~~~~~~~~~~~~
 	N = (N_r - 1)*N_fm;
@@ -486,7 +512,7 @@ def Time_Step(open_filename=None, frame=-1, d_new=0.31325, Ra_new = 3750.00):
 	except:
 		filename = uniquify('TimeStep_0.h5')
 
-	kwargs = {"Ra":Ra_new,"Ra_s":Ra_s,"Tau":Tau,"Pr":Pr,"d":d_new,"N_fm":N_fm_n,"N_r":N_r_n}
+	kwargs = {"Ra":Ra,"Ra_s":Ra_s,"Tau":Tau,"Pr":Pr,"d":d,"N_fm":N_fm_n,"N_r":N_r_n}
 	X_new  = _Time_Step(X,**kwargs,save_filename=filename,start_time=0,Total_time=50,dt=0.001,symmetric=False,linear=False,Verbose=True);
 
 	return filename;
@@ -1264,6 +1290,13 @@ if __name__ == "__main__":
 
 	# %%
 	print("Initialising the code for running...")
+
+	# %%
+	from Plot_Tools import Plot_Time_Step, Cartesian_Plot, Energy
+	filename = Time_Step(open_filename='blah')
+	Plot_Time_Step(filename, logscale=True, plotting=True)
+	Cartesian_Plot(filename, frame=-1, Include_Base_State=False)
+	Energy(filename, frame=-1)
 
 	# %%
 	file = "Continuationl11Ras150_1.h5"
