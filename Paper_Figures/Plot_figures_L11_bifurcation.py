@@ -89,8 +89,8 @@ dir = '/home/pmannix/Spatial_Localisation/SpectralDoubleDiffusiveConvection/Pape
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(16, 6), layout='constrained')
 
 # A) Plot the bifurcation diagram
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax, line='k-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax, line='k-.')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus_old/', ax, line='k-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus_old/', ax, line='k-.')
 
 ax.set_ylabel(r'$\mathcal{E}$', fontsize=25)
 ax.set_xlabel(r'$Ra_T$', fontsize=25)
@@ -101,8 +101,8 @@ ax.set_ylim([0, 5])
 # C) Add inset to show pitchfork
 axins = inset_axes(ax, width="70%", height="70%", loc='upper right', borderpad=2)
 
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', axins, line='k-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', axins, line='k-.')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus_old/', axins, line='k-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus_old/', axins, line='k-.')
 
 axins.plot(np.arange(4515, 4528), 0*np.arange(4515, 4528), 'k-')
 
@@ -129,35 +129,35 @@ plt.show()
 fig, ax = plt.subplots(nrows=1, ncols=6, figsize=(16, 6), layout='constrained')
 
 # A) Plot the bifurcation diagram
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[0], line='r-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[0], line='b-.')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus_old/', ax[0], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus_old/', ax[0], line='b-.')
 ax[0].set_xlim([2800, 3250])
 ax[0].set_ylim([0, 1])
 
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[1], line='r-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[1], line='b-.')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus_old/', ax[1], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus_old/', ax[1], line='b-.')
 ax[1].set_xlim([3250,3650])
 ax[1].set_ylim([0, 0.025])
 
 
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[2], line='r-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[2], line='b-.')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus_old/', ax[2], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus_old/', ax[2], line='b-.')
 ax[2].set_xlim([3650,4000])
 ax[2].set_ylim([0, 0.007])
 
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[3], line='r-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[3], line='b-.')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus_old/', ax[3], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus_old/', ax[3], line='b-.')
 ax[3].set_xlim([4000, 4400])
 ax[3].set_ylim([0.0005, 0.003])
 
 
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[4], line='r-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[4], line='b-.')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus_old/', ax[4], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus_old/', ax[4], line='b-.')
 ax[4].set_xlim([4400, 4520])
 ax[4].set_ylim([0.0002, 0.001])
 
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus/', ax[5], line='r-')
-X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/', ax[5], line='b-.')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Minus_old/', ax[5], line='r-')
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus_old/', ax[5], line='b-.')
 ax[5].set_xlim([4513, 4520])
 ax[5].set_ylim([0.0002, 0.00035])
 
@@ -168,3 +168,6 @@ for ax_i in ax:
 
 plt.savefig('L11_bifurcation_Ras150_branch_details.png', format='png', dpi=100)
 plt.show()
+
+
+

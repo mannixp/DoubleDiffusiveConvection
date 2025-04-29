@@ -1,7 +1,7 @@
 from numba import njit
 import numpy as np
 import matplotlib.pyplot as plt
-from Matrix_Operators import cheb_radial
+from Matrix_Operators import cheb_radial, Vecs_to_X, X_to_Vecs
 import os 
 import time
 import warnings
@@ -36,6 +36,71 @@ def Base_State_Coeffs(d):
 	B_T = R_1/(R_1 - R_2)
 
 	return A_T, B_T
+
+
+def bump_function(X, N_fm, nr, symmetric):
+
+	PSI_hat, T_hat, C_hat = X_to_Vecs(X, N_fm, nr, symmetric)
+	
+	from Transforms import IDCT, DCT, IDST, DST, grid
+	PSI = IDST(PSI_hat,n = (3*N_fm)//2) 
+	T 	= IDCT(  T_hat,n = (3*N_fm)//2)  
+	C   = IDCT(  C_hat,n = (3*N_fm)//2) 
+
+	loc_l = np.pi/2 - 0.25*np.pi
+	loc_r = np.pi/2 + 0.25*np.pi
+	xx = grid(N=(3*N_fm)//2)
+	f  = np.tanh( 2*(xx - loc_l) ) + np.tanh( 2*(loc_r - xx) )
+	bump = .5*np.outer(np.ones(nr),f)
+
+	PSI_hat = DST(bump*PSI,axis=-1)[:,0:N_fm]
+	T_hat 	= DCT(bump*T  ,axis=-1)[:,0:N_fm]
+	C_hat   = DCT(bump*C  ,axis=-1)[:,0:N_fm]
+
+	X = Vecs_to_X(PSI_hat, T_hat, C_hat, N_fm, nr, symmetric)
+
+	# from Plot_Tools import Spectral_To_Gridpoints
+	# from Matrix_Operators import cheb_radial
+
+	# d = 3.132500e-01
+	# R = cheb_radial(nr+1,d)[1] 
+	# Theta_grid = np.linspace(0,np.pi,N_fm);  
+	# r_grid     = np.linspace(R[-1],R[0],50);
+
+	# PSI, T, S, T_0 = Spectral_To_Gridpoints(X, R,r_grid,N_fm,d)
+	# RES = 20
+	# # if Include_Base_State == True:
+	# # 	T +=T_0; 
+	# # 	S +=T_0; 
+
+	# # 1) Fix \theta labels to be [0,pi]
+	# fig, (ax1, ax2, ax3) = plt.subplots(nrows=3,figsize=(12,8),dpi=1200)
+
+	# C_cntr  = ax1.contour( Theta_grid,r_grid,T,  RES, colors = 'k', linewidths=0.5,);
+	# C_cntrf = ax1.contourf(Theta_grid,r_grid,T,  RES, cmap="RdBu_r")
+	# fig.colorbar(C_cntrf, ax=ax1)#
+	# ax1.set_title(r'$T$',fontsize=20)
+
+	# P_cntr  = ax2.contour( Theta_grid,r_grid,PSI,RES, colors = 'k', linewidths=0.5);
+	# P_cntrf = ax2.contourf(Theta_grid,r_grid,PSI,RES, cmap="RdBu_r")
+	# fig.colorbar(P_cntrf, ax=ax2)#
+	# ax2.set_title(r'$\psi$',fontsize=20)
+
+
+	# T_cntr  = ax3.contour( Theta_grid,r_grid,S,  RES, colors = 'k',linewidths=0.5);
+	# T_cntrf = ax3.contourf(Theta_grid,r_grid,S,  RES, cmap="RdBu_r")
+	# fig.colorbar(T_cntrf, ax=ax3)#
+	# ax3.set_ylabel(r'$r$',fontsize=18)
+
+	# ax3.set_xlabel(r'$\theta$',fontsize=18)
+	# ax3.set_title(r'$S$',fontsize=18)
+
+	# plt.subplots_adjust(hspace=0.25)
+	# plt.tight_layout()
+	# plt.savefig("X_Frame.png",format='png', dpi=200)
+	# plt.show()
+
+	return X
 
 
 @njit(fastmath=True)
@@ -575,9 +640,9 @@ def Newton(fac, open_filename='NewtonSolve_0.h5', save_filename='NewtonSolve_0.h
 
 		# Problem Params
 		X      = f['Checkpoints/X_DATA'][frame];
-		Ra     = f['Checkpoints/Ra_DATA'][frame];
+		#Ra     = f['Checkpoints/Ra_DATA'][frame];
 
-		#Ra     = f['Parameters']["Ra"][()];
+		Ra     = f['Parameters']["Ra"][()];
 		Ra_s   = f['Parameters']["Ra_s"][()];
 		Tau    = f['Parameters']["Tau"][()];
 		Pr     = f['Parameters']["Pr"][()];
@@ -597,8 +662,8 @@ def Newton(fac, open_filename='NewtonSolve_0.h5', save_filename='NewtonSolve_0.h
 
 		# ~~~~~~~~~ Interpolate ~~~~~~~~~~~~~~~~~~~
 		from Matrix_Operators import INTERP_RADIAL,INTERP_THETAS
-		N_r_n  = 32; X = INTERP_RADIAL(N_r_n,N_r,X,d); N_r = N_r_n
-		N_fm_n = 256; X = INTERP_THETAS(N_fm_n,N_fm,X); N_fm = N_fm_n
+		N_r_n  = 25; X = INTERP_RADIAL(N_r_n,N_r,X,d); N_r = N_r_n
+		N_fm_n = 192; X = INTERP_THETAS(N_fm_n,N_fm,X); N_fm = N_fm_n
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	# ~~~~~~~~~ Old Initial Conditions ~~~~~~~~~~~~~~~~~~
@@ -606,18 +671,18 @@ def Newton(fac, open_filename='NewtonSolve_0.h5', save_filename='NewtonSolve_0.h
 		X  = np.load(open_filename);
 
 		# # ~~~~~# L = 11 Gap #~~~~~~~~~#
-		# l = 11
-		# d = 0.31325
-		# Ra_s = 400
-		# Ra = 8275.70
+		l = 11
+		d = 0.31325
+		Ra_s = 400
+		Ra = 8275.70
 		
 		# ~~~~~# L = 10 Gap #~~~~~~~~~#
-		l = 10
-		d = 0.3521
-		Ra_s = 400
-		Ra = 8351.53
+		# l = 10
+		# d = 0.3521
+		# Ra_s = 400
+		# Ra = 8351.53
 
-		Ra    -=5e-03
+		Ra    -=1
 		
 		Tau    = 1./15.
 		Pr     = 1.
@@ -633,6 +698,9 @@ def Newton(fac, open_filename='NewtonSolve_0.h5', save_filename='NewtonSolve_0.h
 		else:
 			symmetric = True
 
+
+	#X = bump_function(X, N_fm, N_r-1, symmetric=False)
+	#Ra_s = 650.0
 	#~~~~~~~~~~#~~~~~~~~~~#
 	# Run Code
 	#~~~~~~~~~~#~~~~~~~~~~#
@@ -965,8 +1033,8 @@ def _Continuation(filename, N_steps, sign, Y, **kwargs):
 
 	# Default parameters	
 	ds    =0.01; # The starting step size	
-	ds_min=1.0; #Threshold to switching between Newton & Psuedo
-	ds_max=1.5; # Max Newton step
+	ds_min=.5; #Threshold to switching between Newton & Psuedo
+	ds_max=1.; # Max Newton step
 
 	Result = result()
 	
@@ -1090,14 +1158,14 @@ def Continuation(open_filename, frame=-1):
 
 		# ~~~~~~~~~ Interpolate ~~~~~~~~~~~~~~~~~~~
 		from Matrix_Operators import INTERP_RADIAL,INTERP_THETAS
-		N_r_n  = 25; X = INTERP_RADIAL(N_r_n,N_r,X,d);
-		N_fm_n = 128; X = INTERP_THETAS(N_fm_n,N_fm,X);
+		N_r_n  = 32; X = INTERP_RADIAL(N_r_n,N_r,X,d);
+		N_fm_n = 256; X = INTERP_THETAS(N_fm_n,N_fm,X);
 		# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	sign   = -1;
-	N_steps= 500;
+	N_steps= 2000;
 	Y      = np.hstack( (X,Ra) );
-	kwargs = {"Ra":Ra,"Ra_s":Ra_s,"Tau":Tau,"Pr":Pr,"d":d,"N_fm":N_fm_n,"N_r":N_r_n, "symmetric":True}
+	kwargs = {"Ra":Ra,"Ra_s":Ra_s,"Tau":Tau,"Pr":Pr,"d":d,"N_fm":N_fm_n,"N_r":N_r_n, "symmetric":False}
 
 	save_filename = uniquify(open_filename)
 	
@@ -1198,21 +1266,21 @@ if __name__ == "__main__":
 	print("Initialising the code for running...")
 
 	# %%
-	#file = "ConvectonL10PlusRas303_6.h5"
-	#Continuation(open_filename=file,frame=18)
+	file = "Continuationl11Ras150_1.h5"
+	Continuation(open_filename=file,frame=25)
 	#trim(filename='Continuationl11Ras150_0.h5',point=-4)
 	#_plot_bif(filename='Continuationl11Ras150_0.h5',point=-4) #  Good start point
 
 	# %%
-	#filename = "EigVec_l10.npy"
-	#Newton(fac=-1e-2,open_filename=filename,frame=-1)
+	#filename = "ContinuationL11LargeRas600_1.h5"
+	#Newton(fac=20,open_filename=filename,frame=0)
 
 	# %%
 	from Plot_Tools import Cartesian_Plot, Energy,Uradial_plot
-	filename = "ConvectonL10PlusRas303_7.h5"
-	_plot_bif(filename,point=-1)
-	#Cartesian_Plot(filename,frame=-1,Include_Base_State=False)
-	#Energy(filename,frame=-1)
+	filename = "Continuationl11Ras150_1.h5"
+	_plot_bif(filename,point=25)
+	#Cartesian_Plot(filename,frame=-20,Include_Base_State=False)
+	#Energy(filename,frame=-20)
 # %%
 	
     # Fix these they should be the same

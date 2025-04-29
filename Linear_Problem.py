@@ -674,7 +674,7 @@ def large_aspect_neutrals():
 
 	return None
 
-# Execute main
+# Execute main to produce figures 4 and 5, a little slow to run
 if __name__ == "__main__":
 
 	# %%

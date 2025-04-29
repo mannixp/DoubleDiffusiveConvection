@@ -188,4 +188,4 @@ axins_1.set_xlim([8000, 8500])
 axins_1.plot(np.arange(8000, 8500), 0*np.arange(8000, 8500), 'k-')
 
 plt.savefig('Bifurcation_L10_Ras400.png', format='png', dpi=100)
-#plt.show()
+plt.show()

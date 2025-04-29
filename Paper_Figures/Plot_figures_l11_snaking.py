@@ -29,9 +29,37 @@ plt.rcParams.update({
 
 
 d = 0.31325  # Fixed gap-width
-RES = 25  # number of contour levels to use
+RES = 12   # number of contour levels to use must be even
 markersize = 5
+nrows=13
 
+def cmap(Z):
+
+    from matplotlib.colors import ListedColormap, BoundaryNorm
+
+    Max = np.max(abs(Z))
+
+    assert RES % 2 == 0  # ensure RES is even
+
+    # Define levels (must include 0)
+    levels = np.linspace(-Max,Max,RES)
+
+    # Create RdBu_r colormap with 12 colors
+    original_cmap = plt.get_cmap('RdBu_r', len(levels) - 1)
+    colors = original_cmap(np.arange(original_cmap.N))
+
+    # Find the index of the bin that contains 0
+    # Since levels are symmetric, 0 will be in the middle bin
+    zero_bin_index = (len(levels) - 1) // 2  # e.g., 6 if 12 bins
+
+    # Replace that color with white
+    colors[zero_bin_index] = [1, 1, 1, 1]  # RGBA for white
+    custom_cmap = ListedColormap(colors)
+
+    # Create normalization
+    norm = BoundaryNorm(levels, custom_cmap.N)
+
+    return levels, custom_cmap, norm
 
 def Plot_full_bif(folder, ax, line='k-', label='ro'):
     """
@@ -77,7 +105,6 @@ def Plot_full_bif(folder, ax, line='k-', label='ro'):
 
     return X_fold, N_r_fold, N_fm_fold, Ra_fold
 
-
 def Psi_Plot(Y_FOLD, N_r_FOLD, N_fm_FOLD, axs):
     """Cycle through the fold points and plot them out."""
     count = 0
@@ -90,13 +117,15 @@ def Psi_Plot(Y_FOLD, N_r_FOLD, N_fm_FOLD, axs):
         T = Spectral_To_Gridpoints(Yi, R, r_grid, N_fm, d)[1]
         T = T/np.linalg.norm(T, 2)
 
-        axs[count].contour(Theta_grid, r_grid, T, RES, colors='k', linewidths=0.5)
-        axs[count].contourf(Theta_grid, r_grid, T, RES, cmap="RdBu_r")
+        levels, custom_cmap, norm = cmap(T)
+
+        axs[count].contour(Theta_grid, r_grid, T, levels=levels, colors='k', linewidths=0.5)
+        axs[count].contourf(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap, norm=norm)
         axs[count].set_xticks([])
         axs[count].set_yticks([])
         # axs[count].set_xlim([0,np.pi])
         #axs[count].annotate(r'%d' % count, xy=(-0.05, 0.5), xycoords='axes fraction', fontsize=20)
-        axs[count].axis('off')
+        #axs[count].axis('off')
         count+=1
 
     return None
@@ -110,7 +139,7 @@ dir = '/home/pmannix/Spatial_Localisation/SpectralDoubleDiffusiveConvection/Pape
 # %%
 # L = 11 Ras=150
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
-fig, axs = plt.subplots(nrows=10, ncols=3, figsize=(16, 8), layout='constrained')
+fig, axs = plt.subplots(nrows=nrows, ncols=3, figsize=(16, 10), layout='constrained')
 
 # remove the underlying Axes in the middle column
 for axl in axs[:, 1]:
@@ -127,7 +156,7 @@ label='bs'
 X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/' , ax, line='k-.')
 
 obj = result()
-with h5py.File(dir + 'Anti_Convectons_Plus/' + "Continuationl11Ras150_1.h5", 'r') as f:
+with h5py.File(dir + 'Anti_Convectons_Plus/' + "Continuationl11Ras150_2.h5", 'r') as f:
     ff = f["Bifurcation"]
     for key in ff.keys():
         setattr(obj, key, ff[key][()])
@@ -136,34 +165,8 @@ with h5py.File(dir + 'Anti_Convectons_Plus/' + "Continuationl11Ras150_1.h5", 'r'
     
     D, R = cheb_radial(N_r, d)
 
-    point = 59
-    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
-    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
-
-    X_folds.insert(4, obj.X_DATA[point])
-    Ra_folds.insert(4, obj.Ra_DATA[point])
-    Nr_folds.insert(4, N_r)
-    Nfm_folds.insert(4, N_fm)
-
-    point = 58
-    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
-    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
-
-    X_folds.insert(4, obj.X_DATA[point])
-    Ra_folds.insert(4, obj.Ra_DATA[point])
-    Nr_folds.insert(4, N_r)
-    Nfm_folds.insert(4, N_fm)
-
-    point = 33
-    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
-    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
-
-    X_folds.insert(0, obj.X_DATA[point])
-    Ra_folds.insert(0, obj.Ra_DATA[point])
-    Nr_folds.insert(0, N_r)
-    Nfm_folds.insert(0, N_fm)
     
-    point = 32
+    point = 83
     KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
     ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
 
@@ -172,7 +175,8 @@ with h5py.File(dir + 'Anti_Convectons_Plus/' + "Continuationl11Ras150_1.h5", 'r'
     Nr_folds.insert(0, N_r)
     Nfm_folds.insert(0, N_fm)
 
-    point = 30
+
+    point = 80
     KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
     ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
 
@@ -181,15 +185,73 @@ with h5py.File(dir + 'Anti_Convectons_Plus/' + "Continuationl11Ras150_1.h5", 'r'
     Nr_folds.insert(0, N_r)
     Nfm_folds.insert(0, N_fm)
 
-Psi_Plot(X_folds[::-1][:-1], Nr_folds[::-1][:-1], Nfm_folds[::-1][:-1], axs=axs[:, 0])
+    point = 75
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
 
-for count in range(9+1):
-    axs[::-1, 0][count].annotate(r'%d' % count, xy=(-0.05, 0.5), xycoords='axes fraction', fontsize=20)
+    X_folds.insert(0, obj.X_DATA[point])
+    Ra_folds.insert(0, obj.Ra_DATA[point])
+    Nr_folds.insert(0, N_r)
+    Nfm_folds.insert(0, N_fm)
+
+
+    point = 70
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(0, obj.X_DATA[point])
+    Ra_folds.insert(0, obj.Ra_DATA[point])
+    Nr_folds.insert(0, N_r)
+    Nfm_folds.insert(0, N_fm)
+
+
+    point = 98
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(6, obj.X_DATA[point])
+    Ra_folds.insert(6, obj.Ra_DATA[point])
+    Nr_folds.insert(6, N_r)
+    Nfm_folds.insert(6, N_fm)
+
+    point = 101
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(7, obj.X_DATA[point])
+    Ra_folds.insert(7, obj.Ra_DATA[point])
+    Nr_folds.insert(7, N_r)
+    Nfm_folds.insert(7, N_fm)
+
+
+    point = 115
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(10, obj.X_DATA[point])
+    Ra_folds.insert(10, obj.Ra_DATA[point])
+    Nr_folds.insert(10, N_r)
+    Nfm_folds.insert(10, N_fm)
+
+
+    point = 117
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(11, obj.X_DATA[point])
+    Ra_folds.insert(11, obj.Ra_DATA[point])
+    Nr_folds.insert(11, N_r)
+    Nfm_folds.insert(11, N_fm)
+
+Psi_Plot(X_folds[::-1], Nr_folds[::-1], Nfm_folds[::-1], axs=axs[:, 0])
+
+for count in range(nrows):
+    axs[::-1, 0][count].annotate(r'%d' % count, xy=(-0.075, 0.5), xycoords='axes fraction', fontsize=20)
 
 # E) Add labels
 X = []
 Y = []
-for Xi, N_r, N_fm, Ra_i in zip(X_folds[:-1], Nr_folds[:-1], Nfm_folds[:-1], Ra_folds[:-1]):
+for Xi, N_r, N_fm, Ra_i in zip(X_folds[:], Nr_folds[:], Nfm_folds[:], Ra_folds[:]):
     D, R = cheb_radial(N_r, d)
     Ke_i = Kinetic_Energy(Xi, R, D, N_fm, N_r-1, symmetric=False)
     X.append(Ra_i+5)
@@ -207,7 +269,7 @@ X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Mi
 
 # # B) Add other points
 obj = result()
-with h5py.File(dir + 'Anti_Convectons_Minus/' + "Continuationl11Ras150_1.h5", 'r') as f:
+with h5py.File(dir + 'Anti_Convectons_Minus/' + "Continuationl11Ras150_2_full.h5", 'r') as f:
     ff = f["Bifurcation"]
     for key in ff.keys():
         setattr(obj, key, ff[key][()])
@@ -216,7 +278,17 @@ with h5py.File(dir + 'Anti_Convectons_Minus/' + "Continuationl11Ras150_1.h5", 'r
     
     D, R = cheb_radial(N_r, d)
     
-    point = -14
+    
+    point = 60
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(0, obj.X_DATA[point])
+    Ra_folds.insert(0, obj.Ra_DATA[point])
+    Nr_folds.insert(0, N_r)
+    Nfm_folds.insert(0, N_fm)
+    
+    point = 55
     KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
     ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
 
@@ -225,47 +297,57 @@ with h5py.File(dir + 'Anti_Convectons_Minus/' + "Continuationl11Ras150_1.h5", 'r
     Nr_folds.insert(0, N_r)
     Nfm_folds.insert(0, N_fm)
 
-    point = -15
+
+    point = 81
     KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
     ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
 
-    X_folds.insert(0, obj.X_DATA[point])
-    Ra_folds.insert(0, obj.Ra_DATA[point])
-    Nr_folds.insert(0, N_r)
-    Nfm_folds.insert(0, N_fm)
+    X_folds.insert(4, obj.X_DATA[point])
+    Ra_folds.insert(4, obj.Ra_DATA[point])
+    Nr_folds.insert(4, N_r)
+    Nfm_folds.insert(4, N_fm)
 
 
-# # B) Add other points
-obj = result()
-with h5py.File(dir + 'Anti_Convectons_Minus/' + "Continuationl11Ras150_3.h5", 'r') as f:
-    ff = f["Bifurcation"]
-    for key in ff.keys():
-        setattr(obj, key, ff[key][()])
-    N_fm = f['Parameters']["N_fm"][()]
-    N_r = f['Parameters']["N_r"][()]
-    
-    D, R = cheb_radial(N_r, d)
-    
-    point = 6
+    point = 84
     KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
     ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
 
-    X_folds.insert(8, obj.X_DATA[point])
-    Ra_folds.insert(8, obj.Ra_DATA[point])
-    Nr_folds.insert(8, N_r)
-    Nfm_folds.insert(8, N_fm)
+    X_folds.insert(5, obj.X_DATA[point])
+    Ra_folds.insert(5, obj.Ra_DATA[point])
+    Nr_folds.insert(5, N_r)
+    Nfm_folds.insert(5, N_fm)
+
+
+    point = 92
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(7, obj.X_DATA[point])
+    Ra_folds.insert(7, obj.Ra_DATA[point])
+    Nr_folds.insert(7, N_r)
+    Nfm_folds.insert(7, N_fm)
+
+    point = 99
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(9, obj.X_DATA[point])
+    Ra_folds.insert(9, obj.Ra_DATA[point])
+    Nr_folds.insert(9, N_r)
+    Nfm_folds.insert(9, N_fm)
+
 
 Psi_Plot(X_folds, Nr_folds, Nfm_folds, axs=axs[::-1, 2])
 
-letters = [r'a',r'b',r'c',r'd',r'e',r'f',r'g',r'h',r'i',r'j']
+letters = [r'a',r'b',r'c',r'd',r'e',r'f',r'g',r'h',r'i',r'j',r'k',r'l',r'm']
 for count, letter in enumerate(letters):
-    axs[::-1, 2][count].annotate(letter, xy=(-0.05, 0.5), xycoords='axes fraction', fontsize=20,color='g')
+    axs[::-1, 2][count].annotate(letter, xy=(-0.075, 0.5), xycoords='axes fraction', fontsize=20,color='g')
 
 
 # E) Add labels
 X = []
 Y = []
-for Xi, N_r, N_fm, Ra_i in zip(X_folds[:-1], Nr_folds[:-1], Nfm_folds[:-1], Ra_folds[:-1]):
+for Xi, N_r, N_fm, Ra_i in zip(X_folds[:], Nr_folds[:], Nfm_folds[:], Ra_folds[:]):
     D, R = cheb_radial(N_r, d)
     Ke_i = Kinetic_Energy(Xi, R, D, N_fm, N_r-1, symmetric=False)
     X.append(Ra_i-15)
@@ -280,8 +362,121 @@ for xy in zip(X, Y):
 ax.set_ylabel(r'$\mathcal{E}$', fontsize=25)
 ax.set_xlabel(r'$Ra_T$', fontsize=25)
 ax.tick_params(axis='both', labelsize=25)
-ax.set_xlim([2660, 3000])
+ax.set_xlim([2650, 2950])
 ax.set_ylim([0, 3.25])
 
 plt.savefig('L11_Snaking_Ras150.png', format='png', dpi=100)
+plt.show()
+
+# %%
+
+# L = 11 Ras=150 extra detail
+# ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
+fig, axs = plt.subplots(nrows=5, ncols=2, figsize=(16, 8), layout='constrained')
+
+# remove the underlying Axes in the middle column
+for axl in axs[:, 0]:
+    axl.remove()
+
+# Add a single plot to it
+gs = axs[1, 0].get_gridspec()
+ax = fig.add_subplot(gs[:, 0])
+
+
+# A) Plus Branch
+# ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
+label='bs'
+X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'Anti_Convectons_Plus/' , ax, line='k-.', label='wo')
+
+# Remove the last point
+X_folds = []
+Nr_folds = [] 
+Nfm_folds = [] 
+Ra_folds = []
+
+# # B) Add other points
+obj = result()
+with h5py.File(dir + 'Anti_Convectons_Plus/' + "Continuationl11Ras150_2.h5", 'r') as f:
+    ff = f["Bifurcation"]
+    for key in ff.keys():
+        setattr(obj, key, ff[key][()])
+    N_fm = f['Parameters']["N_fm"][()]
+    N_r = f['Parameters']["N_r"][()]
+    
+    D, R = cheb_radial(N_r, d)
+    
+    point = 164
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(0, obj.X_DATA[point])
+    Ra_folds.insert(0, obj.Ra_DATA[point])
+    Nr_folds.insert(0, N_r)
+    Nfm_folds.insert(0, N_fm)
+
+
+    point = 170
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(0, obj.X_DATA[point])
+    Ra_folds.insert(0, obj.Ra_DATA[point])
+    Nr_folds.insert(0, N_r)
+    Nfm_folds.insert(0, N_fm)
+
+    point =175
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(0, obj.X_DATA[point])
+    Ra_folds.insert(0, obj.Ra_DATA[point])
+    Nr_folds.insert(0, N_r)
+    Nfm_folds.insert(0, N_fm)
+
+    point = 185
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(0, obj.X_DATA[point])
+    Ra_folds.insert(0, obj.Ra_DATA[point])
+    Nr_folds.insert(0, N_r)
+    Nfm_folds.insert(0, N_fm)
+
+    point = 190
+    KE = Kinetic_Energy(obj.X_DATA[point], R, D, N_fm, N_r-1, symmetric=False)
+    ax.plot(obj.Ra_DATA[point], KE, label,markersize=markersize)
+
+    X_folds.insert(0, obj.X_DATA[point])
+    Ra_folds.insert(0, obj.Ra_DATA[point])
+    Nr_folds.insert(0, N_r)
+    Nfm_folds.insert(0, N_fm)
+    
+Psi_Plot(X_folds[::-1], Nr_folds[::-1], Nfm_folds[::-1], axs=axs[:, 1])
+
+letters = [r'$\alpha$',r'$\beta$',r'$\gamma$',r'$\delta$',r'$\epsilon$']
+for count, letter in enumerate(letters):
+    axs[::-1, 1][count].annotate(letter, xy=(-0.075, 0.5), xycoords='axes fraction', fontsize=20)
+
+# E) Add labels
+X = []
+Y = []
+for Xi, N_r, N_fm, Ra_i in zip(X_folds[:], Nr_folds[:], Nfm_folds[:], Ra_folds[:]):
+    D, R = cheb_radial(N_r, d)
+    Ke_i = Kinetic_Energy(Xi, R, D, N_fm, N_r-1, symmetric=False)
+    X.append(Ra_i+5)
+    Y.append(Ke_i)
+
+count = 0
+for xy in zip(X, Y):
+    ax.annotate(letters[count], xy=xy, textcoords='data', fontsize=20)
+    count += 1
+
+# Lable & limit the middle axis
+ax.set_ylabel(r'$\mathcal{E}$', fontsize=25)
+ax.set_xlabel(r'$Ra_T$', fontsize=25)
+ax.tick_params(axis='both', labelsize=25)
+ax.set_xlim([2650, 2950])
+ax.set_ylim([0, 3.25])
+
+plt.savefig('L11_Snaking_Ras150_extra_detail.png', format='png', dpi=100)
 plt.show()

@@ -11,7 +11,7 @@ def Gap_Vary(Ra_s_new, open_filename, frame):
 
     try:
         Ra = f['Checkpoints/Ra_DATA'][frame]
-        #Ra = f['Bifurcation/Ra_DATA'][frame];
+        Ra = f['Bifurcation/Ra_DATA'][frame];
     except:
         Ra = f['Parameters']["Ra"][()]
 
@@ -25,16 +25,16 @@ def Gap_Vary(Ra_s_new, open_filename, frame):
 
     # ~~~~~~~~~ Interpolate ~~~~~~~~~~~~~~~~~~~
     from Matrix_Operators import INTERP_RADIAL, INTERP_THETAS
-    N_r_n = 32
+    N_r_n = 25
     X = INTERP_RADIAL(N_r_n, N_r, X, d)
-    N_fm_n = 256
+    N_fm_n = 128
     X = INTERP_THETAS(N_fm_n, N_fm, X)
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     print("\n Loading Ra = %e, Ra_s=%e, Pr=%2.5f, Tau=%2.5f, d=%2.5f and resolution N_fm, N_r = %d,%d \n"%(Ra,Ra_s,Pr,Tau,d,N_fm,N_r))    
     
-    sign = -1
-    N_steps = 500
+    sign = 1
+    N_steps = 100
     Y = np.hstack((X, Ra))
     kwargs = {"Ra":Ra,"Ra_s":Ra_s_new,"Tau":Tau,"Pr":Pr,"d":d,"N_fm":N_fm_n,"N_r":N_r_n, "symmetric":True}
     
@@ -53,10 +53,10 @@ def main():
 
     print('Creating a test directory .... \n')
 
-    open_filename = "ConvectonL10PlusRas400Ras300_1.h5"
-    frame = 0
+    open_filename = "AntiConvectonL10PlusRas175Ras195_0.h5"
+    frame = -10
 
-    for Ras_i in [306.125]:
+    for Ras_i in [198,199]:
         print("\n Ra_s = ",Ras_i)
         Gap_Vary(Ras_i, open_filename, frame)
     
