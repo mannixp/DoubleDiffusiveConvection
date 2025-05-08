@@ -58,7 +58,7 @@ def Spherical_Plot(filename, frame, Include_Base_State=True):
 	ax[1].contour(Theta_grid,r_grid,T,RES, colors='k')
 	ax[1].contour(2.0*np.pi-Theta_grid,r_grid,T,RES, colors='k')
 
-	plt.savefig('Localised_Solutions_Plot.png', format='png', dpi=1800)
+	plt.savefig('Localised_Solutions_Plot.png', format='png', dpi=100)
 	plt.show()
 
 	return None	
@@ -272,7 +272,7 @@ def Cartesian_Plot(filename,frame,Include_Base_State=True):
 		S +=T_0; 
 
 	# 1) Fix \theta labels to be [0,pi]
-	fig, (ax1, ax2, ax3) = plt.subplots(nrows=3,figsize=(12,8),dpi=1200)
+	fig, (ax1, ax2, ax3) = plt.subplots(nrows=3,figsize=(12,8),dpi=100)
 
 	C_cntr  = ax1.contour( Theta_grid,r_grid,T,  RES, colors = 'k', linewidths=0.5,);
 	C_cntrf = ax1.contourf(Theta_grid,r_grid,T,  RES, cmap="RdBu_r")
@@ -295,7 +295,7 @@ def Cartesian_Plot(filename,frame,Include_Base_State=True):
 
 	plt.subplots_adjust(hspace=0.25)
 	plt.tight_layout()
-	plt.savefig("X_Frame.png",format='png', dpi=200)
+	plt.savefig("X_Frame.png",format='png', dpi=100)
 	plt.show()
 
 	return None;
@@ -389,7 +389,7 @@ def Plot_full_bif(folder, ax=None, line='k-' ,plotting=False):
 		add_to_fig(obj)
 	
 	if plotting is True:
-		plt.savefig('Bifurcation_Series.png',format='png',dpi=1000)
+		plt.savefig('Bifurcation_Series.png',format='png',dpi=100)
 		plt.show() 
 
 	return None
@@ -447,7 +447,7 @@ def Fold_Points_Ur(folder):
 
 		bottom, count = add_to_fig(bottom,obj,N_fm,N_r,d, count)
 
-	plt.savefig("RadialVelocity_Series.png",format='png',dpi=200)
+	plt.savefig("RadialVelocity_Series.png",format='png',dpi=100)
 	plt.show()
 	plt.close()
 
@@ -511,7 +511,7 @@ def Fold_Points_Psi(folder):
 
 		bottom, count = add_to_fig(bottom,obj,N_fm,N_r,d, count)
 
-	plt.savefig("Psi_Series.png",format='png', dpi=200)
+	plt.savefig("Psi_Series.png",format='png', dpi=100)
 	plt.show()   
 	plt.close()
 
@@ -569,7 +569,7 @@ if __name__ == "__main__":
 	idx = np.argsort(Ra_list)
 	#ax.plot(Ra_list[idx],ke_list[idx],'ko')
 	ax.semilogy(Ra_list[idx],ke_list[idx],'ko')
-	plt.savefig('Bifurcation_Series.png',format='png',dpi=200)
+	plt.savefig('Bifurcation_Series.png',format='png',dpi=100)
 	plt.show()
 
 # %%
