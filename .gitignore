@@ -7,6 +7,10 @@ __pycache__/
 *.h5
 *.vtr
 *.npy
+*.txt
+*.plt
+*.dat
+*.zip
 
 # Ouptut images & Movies
 *.png

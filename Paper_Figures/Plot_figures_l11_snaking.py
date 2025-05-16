@@ -372,7 +372,7 @@ plt.show()
 
 # L = 11 Ras=150 extra detail
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
-fig, axs = plt.subplots(nrows=5, ncols=2, figsize=(16, 8), layout='constrained')
+fig, axs = plt.subplots(nrows=5, ncols=2, figsize=((2/3)*16,(5/12)*10), layout='constrained')
 
 # remove the underlying Axes in the middle column
 for axl in axs[:, 0]:
