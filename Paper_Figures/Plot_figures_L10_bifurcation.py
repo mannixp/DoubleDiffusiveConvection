@@ -138,7 +138,7 @@ ax[0].tick_params(axis='both', labelsize=25)
 #ax[0].set_title(r'$\ell=10^{+}$', fontsize=25)
 ax[0].set_ylim([0, 12.5])
 ax[0].set_xlim([3000, 8500])
-ax[0].annotate('(a)', xy=(0.0, 1.05), xycoords='axes fraction', fontsize=25)
+ax[0].annotate(r'(a)', xy=(0.0, 1.05), xycoords='axes fraction', fontsize=25)
 
 # B) Create the transcritical inset
 axins_0 = inset_axes(ax[0], width="70%", height="70%", loc='upper right', borderpad=2)
@@ -168,7 +168,7 @@ ax[1].tick_params(axis='both', labelsize=25)
 #ax[1].set_title(r'$\ell=10^{-}$', fontsize=25)
 ax[1].set_ylim([0, 12.5])
 ax[1].set_xlim([3000, 8500])
-ax[1].annotate('(b)', xy=(0.0, 1.05), xycoords='axes fraction', fontsize=25)
+ax[1].annotate(r'(b)', xy=(0.0, 1.05), xycoords='axes fraction', fontsize=25)
 
 # D) Create the transcritical inset
 
