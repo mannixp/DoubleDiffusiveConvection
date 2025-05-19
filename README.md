@@ -1,5 +1,9 @@
 # DoubleDiffusiveConvection
 
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15462897.svg)](https://doi.org/10.5281/zenodo.15462897)
+
+
 This code solves the following system of partial differential equations in an axisymmetric spherical domain
 
 $$
