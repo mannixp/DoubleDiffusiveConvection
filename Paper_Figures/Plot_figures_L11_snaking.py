@@ -139,14 +139,20 @@ dir = '/home/pmannix/Spatial_Localisation/SpectralDoubleDiffusiveConvection/Pape
 # %%
 # L = 11 Ras=150
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
-fig, axs = plt.subplots(nrows=nrows, ncols=3, figsize=(16, 10), layout='constrained')
+fig, axs = plt.subplots(
+    nrows=nrows, 
+    ncols=3, 
+    figsize=(16, 9.2), 
+    layout='constrained',
+    gridspec_kw={'width_ratios': [1.15, 1, 1.15]}  # adjust widths to balance layout
+)
 
-# remove the underlying Axes in the middle column
+# Remove the middle column axes (column index 1)
+gs = axs[0, 1].get_gridspec()
 for axl in axs[:, 1]:
     axl.remove()
 
-# Add a single plot to it
-gs = axs[1, 0].get_gridspec()
+# Add a new axes that spans the middle column
 ax = fig.add_subplot(gs[:, 1])
 
 
@@ -372,16 +378,22 @@ plt.show()
 
 # L = 11 Ras=150 extra detail
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
-fig, axs = plt.subplots(nrows=5, ncols=2, figsize=((2/3)*16,(5/12)*10), layout='constrained')
 
-# remove the underlying Axes in the middle column
+fig, axs = plt.subplots(
+    nrows=5, 
+    ncols=2, 
+    figsize=((2/3)*16, (5/12)*9.4), 
+    layout='constrained',
+    gridspec_kw={'width_ratios': [1, 1.08]}  # adjust widths to balance layout
+)
+
+# Remove the middle column axes (column index 1)
+gs = axs[0, 0].get_gridspec()
 for axl in axs[:, 0]:
     axl.remove()
 
-# Add a single plot to it
-gs = axs[1, 0].get_gridspec()
+# Add a new axes that spans the middle column
 ax = fig.add_subplot(gs[:, 0])
-
 
 # A) Plus Branch
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~

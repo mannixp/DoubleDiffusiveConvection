@@ -165,15 +165,21 @@ dir = '/home/pmannix/Spatial_Localisation/SpectralDoubleDiffusiveConvection/Pape
 # (L^{C-}_10) & (L^{C+}_10) at Ra_s = 450
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
 
+fig, axs = plt.subplots(
+    nrows=7, 
+    ncols=3, 
+    figsize=(16, 5.4), 
+    layout='constrained',
+    gridspec_kw={'width_ratios': [0.75, 1, 0.75]}  # adjust widths to balance layout
+)
 
-fig, axs = plt.subplots(nrows=7, ncols=3, figsize=(16, 6), layout='constrained')
-
-# remove the underlying Axes in the right column
-gs = axs[1, 1].get_gridspec()
+# Remove the middle column axes (column index 1)
+gs = axs[0, 1].get_gridspec()
 for axl in axs[:, 1]:
     axl.remove()
-ax = fig.add_subplot(gs[:, 1])
 
+# Add a new axes that spans the middle column
+ax = fig.add_subplot(gs[:, 1])
 
 ax.set_ylabel(r'$\mathcal{E}$', fontsize=25)
 ax.set_xlabel(r'$Ra_T$', fontsize=25)
@@ -181,7 +187,6 @@ ax.tick_params(axis='both', labelsize=25)
 ax.set_ylim([.75, 8])
 ax.set_xlim([3150, 3550])
 ax.tick_params(axis='both', labelsize=25)
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -322,13 +327,22 @@ plt.show()
 # (L^{A−}_10) L = 10 Minus AntiConvectons Ras=350
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
 
-fig, axs = plt.subplots(nrows=9, ncols=2, figsize=(16, 6), layout='constrained')
+fig, axs = plt.subplots(
+    nrows=9, 
+    ncols=2, 
+    figsize=((2/3)*16, 6.8), 
+    layout='constrained',
+    gridspec_kw={'width_ratios': [1, 0.9]}  # adjust widths to balance layout
+)
 
-# remove the underlying Axes in the right column
-gs = axs[1, 0].get_gridspec()
+# Remove the middle column axes (column index 1)
+gs = axs[0, 0].get_gridspec()
 for axl in axs[:, 0]:
     axl.remove()
+
+# Add a new axes that spans the middle column
 ax = fig.add_subplot(gs[:, 0])
+
 
 # A) Plot the bifurcation diagram
 X_folds, Nr_folds, Nfm_folds, Ra_folds = Plot_full_bif(dir + 'AntiConvectons_Minus_Ras350', ax, line='k:')
@@ -414,12 +428,20 @@ plt.show()
 # (L^{A+}_10) L = 10 Plus Anti-convectons Ra_s = 175
 # ~~~~~~~~~~~~~~~~~~~~~~ # ~~~~~~~~~~~~~~~~~~~~~~~~
 
-fig, axs = plt.subplots(nrows=8, ncols=2, figsize=(16, 6), layout='constrained')
+fig, axs = plt.subplots(
+    nrows=8, 
+    ncols=2, 
+    figsize=((2/3)*16, 6), 
+    layout='constrained',
+    gridspec_kw={'width_ratios': [1, 0.95]}  # adjust widths to balance layout
+)
 
-# remove the underlying Axes in the right column
-gs = axs[1, 0].get_gridspec()
+# Remove the middle column axes (column index 1)
+gs = axs[0, 0].get_gridspec()
 for axl in axs[:, 0]:
     axl.remove()
+
+# Add a new axes that spans the middle column
 ax = fig.add_subplot(gs[:, 0])
 
 # A) Plot the bifurcation diagram

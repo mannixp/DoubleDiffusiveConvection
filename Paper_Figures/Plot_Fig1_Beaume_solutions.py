@@ -145,7 +145,7 @@ dir = '/home/pmannix/Spatial_Localisation/SpectralDoubleDiffusiveConvection/Pape
 fig = plt.figure(figsize=(16, 6), layout='constrained')
 
 # Create a GridSpec with custom width ratios
-gs = GridSpec(6, 2, figure=fig, width_ratios=[0.5, 1.5])  # Adjust width_ratios as needed
+gs = GridSpec(6, 2, figure=fig, width_ratios=[0.4, 1.59])  # Adjust width_ratios as needed
 
 # Create the left column as a single subplot
 ax = fig.add_subplot(gs[:, 0])
@@ -153,7 +153,7 @@ ax = fig.add_subplot(gs[:, 0])
 # Create the right column subplots
 axs = np.empty((6, 1), dtype=object)
 for i in range(6):
-    axs[i, 0] = fig.add_subplot(gs[i, 1], aspect=.75)
+    axs[i, 0] = fig.add_subplot(gs[i, 1], aspect=1)
 
 
 # A) Bifurcation diagram
@@ -173,7 +173,7 @@ ax.plot(x2, y2, 'k:', linewidth=2, label=r'$L^{1+}_{10}$')
 
 # Add labels, legend, and title
 ax.set_xlabel(r'$Ra_T$', fontsize=30)
-ax.set_ylabel(r'$\mathcal{E}$', fontsize=30)
+ax.set_ylabel(r'$E$', fontsize=30)
 
 # Show the plot
 ax.set_xlim(2660, 2800)
