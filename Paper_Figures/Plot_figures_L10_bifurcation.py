@@ -10,13 +10,10 @@ from within the Paper_Figures directory.
 import numpy as np
 import glob, h5py
 
-import sys
-import os
-
+import sys, os
 sys.path.append(os.path.abspath("../"))
-
+from Plot_Tools import Spectral_To_Gridpoints, cmap
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from Plot_Tools import Spectral_To_Gridpoints
 from Main import result, Kinetic_Energy
 from Matrix_Operators import cheb_radial
 import matplotlib.pyplot as plt

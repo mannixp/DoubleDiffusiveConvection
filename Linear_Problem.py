@@ -533,39 +533,6 @@ def figure_4():
 
 
 
-RES = 12   # number of contour levels to use must be even
-markersize = 5
-nrows=13
-
-def cmap(Z):
-
-    from matplotlib.colors import ListedColormap, BoundaryNorm
-
-    Max = np.max(abs(Z))
-
-    assert RES % 2 == 0  # ensure RES is even
-
-    # Define levels (must include 0)
-    levels = np.linspace(-Max,Max,RES)
-
-    # Create RdBu_r colormap with 12 colors
-    original_cmap = plt.get_cmap('RdBu_r', len(levels) - 1)
-    colors = original_cmap(np.arange(original_cmap.N))
-
-    # Find the index of the bin that contains 0
-    # Since levels are symmetric, 0 will be in the middle bin
-    zero_bin_index = (len(levels) - 1) // 2  # e.g., 6 if 12 bins
-
-    # Replace that color with white
-    colors[zero_bin_index] = [1, 1, 1, 1]  # RGBA for white
-    custom_cmap = ListedColormap(colors)
-
-    # Create normalization
-    norm = BoundaryNorm(levels, custom_cmap.N)
-
-    return levels, custom_cmap, norm
-
-
 def figure_5():
 	
 	nr = 24
@@ -574,7 +541,8 @@ def figure_5():
 	RES = 20
 
 	from Matrix_Operators import cheb_radial
-	from Plot_Tools import Spectral_To_Gridpoints
+	from Plot_Tools import Spectral_To_Gridpoints, cmap
+
 
 	# ~~~~~# L = 10 Gap #~~~~~~~~~#
 	d = 0.3521
@@ -624,13 +592,15 @@ def figure_5():
 	ax[0,0].set_ylim([R[0],R[-1]])
 	ax[0,0].set_xlim([0,np.pi])
 
-	levels, custom_cmap, norm = cmap(T)
-	ax[1,0].contour(Theta_grid, r_grid, T, levels=levels, colors='k', linewidths=0.5)
-	ax[1,0].contourf(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap, norm=norm)
+	levels, custom_cmap, norm = cmap(T, RES=12, epsilon=1e-04)
+	ax[1,0].contourf(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap)#, norm=norm)
+	ax[1,0].contour(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap)# colors='k', linewidths=0.5)
+	
 
-	levels, custom_cmap, norm = cmap(S)
-	ax[2,0].contour(Theta_grid, r_grid, S, levels=levels, colors='k', linewidths=0.5)
-	ax[2,0].contourf(Theta_grid, r_grid, S, levels=levels, cmap=custom_cmap, norm=norm)
+	levels, custom_cmap, norm = cmap(S, RES=12, epsilon=1e-04)
+	ax[2,0].contourf(Theta_grid, r_grid, S, levels=levels, cmap=custom_cmap)#, norm=norm)
+	ax[2,0].contour(Theta_grid, r_grid, S, levels=levels, cmap=custom_cmap)#, colors='k', linewidths=0.5)
+	
 	
 	# ~~~~~# L = 11 Gap #~~~~~~~~~#
 	d = 0.31325 
@@ -671,13 +641,13 @@ def figure_5():
 	ax[0,1].set_ylim([R[0],R[-1]])
 	ax[0,1].set_xlim([0,np.pi])
 
-	levels, custom_cmap, norm = cmap(T)
-	ax[1,1].contour(Theta_grid, r_grid, T, levels=levels, colors='k', linewidths=0.5)
-	ax[1,1].contourf(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap, norm=norm)
+	levels, custom_cmap, norm = cmap(T, RES=12, epsilon=1e-04)
+	ax[1,1].contourf(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap)#, norm=norm)
+	ax[1,1].contour(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap)#, colors='k', linewidths=0.5)
 
-	levels, custom_cmap, norm = cmap(S)
-	ax[2,1].contour(Theta_grid, r_grid, S, levels=levels, colors='k', linewidths=0.5)
-	ax[2,1].contourf(Theta_grid, r_grid, S, levels=levels, cmap=custom_cmap, norm=norm)
+	levels, custom_cmap, norm = cmap(S, RES=12, epsilon=1e-04)
+	ax[2,1].contourf(Theta_grid, r_grid, S, levels=levels, cmap=custom_cmap)#, norm=norm)
+	ax[2,1].contour(Theta_grid, r_grid, S, levels=levels, cmap=custom_cmap)#, colors='k', linewidths=0.5)
 
 	for i in range(2):
 		ax[0,i].set_title(r'$(\tilde{u}_r,\tilde{u}_{\theta})$',fontsize=30)

@@ -10,13 +10,11 @@ from within the Paper_Figures directory.
 import numpy as np
 import glob, h5py
 
-import sys
-import os
-
+import sys, os
 sys.path.append(os.path.abspath("../"))
+from Plot_Tools import Spectral_To_Gridpoints, cmap
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from Plot_Tools import Spectral_To_Gridpoints
 from Main import result, Kinetic_Energy
 from Matrix_Operators import cheb_radial
 import matplotlib.pyplot as plt
@@ -29,38 +27,7 @@ plt.rcParams.update({
 
 
 d = 0.3521  # Fixed gap-width
-RES = 12   # number of contour levels to use must be even
 markersize = 10
-
-
-def cmap(Z):
-
-    from matplotlib.colors import ListedColormap, BoundaryNorm
-
-    Max = np.max(abs(Z))
-
-    assert RES % 2 == 0  # ensure RES is even
-
-    # Define levels (must include 0)
-    levels = np.linspace(-Max,Max,RES)
-
-    # Create RdBu_r colormap with 12 colors
-    original_cmap = plt.get_cmap('RdBu_r', len(levels) - 1)
-    colors = original_cmap(np.arange(original_cmap.N))
-
-    # Find the index of the bin that contains 0
-    # Since levels are symmetric, 0 will be in the middle bin
-    zero_bin_index = (len(levels) - 1) // 2  # e.g., 6 if 12 bins
-
-    # Replace that color with white
-    colors[zero_bin_index] = [1, 1, 1, 1]  # RGBA for white
-    custom_cmap = ListedColormap(colors)
-
-    # Create normalization
-    norm = BoundaryNorm(levels, custom_cmap.N)
-
-    return levels, custom_cmap, norm
-
 
 def Plot_full_bif(folder, ax, line='k-'):
     """
@@ -123,10 +90,10 @@ def Psi_Plot(Y_FOLD, N_r_FOLD, N_fm_FOLD, axs):
         T = T/np.linalg.norm(T, 2)
 
         
-        levels, custom_cmap, norm = cmap(T)
+        levels, custom_cmap, norm = cmap(T,RES=12,epsilon=0.0075)
 
-        axs[count].contour(Theta_grid, r_grid, T, levels=levels, colors='k', linewidths=0.5)
-        axs[count].contourf(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap, norm=norm)
+        axs[count].contour(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap)#, colors='k', linewidths=0.5)
+        axs[count].contourf(Theta_grid, r_grid, T, levels=levels, cmap=custom_cmap)#, norm=norm)
         axs[count].set_xticks([])
         axs[count].set_yticks([])
         # axs[count].set_xlim([0,np.pi])

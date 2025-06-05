@@ -1,0 +1,650 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsmath, amsfonts, amsthm, amssymb}
+\usepackage{hyperref}
+\usepackage{natbib}
+
+\newcommand{\Pran}{Pr}
+
+
+\title{Formulation and validation of the numerical method used in the paper: ``Spatially localised convection in an axisymmetric spherical shell"}
+\author{P.M. Mannix, C. Beaume}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Numerical formulation}\label{sec:Spectral_method_description}
+
+\subsection{Governing equations}
+
+The governing equations are given by 
+\begin{subequations}
+\begin{equation}
+\frac{1}{\Pran} \left( \frac{D \boldsymbol{u}}{D t} + \nabla p \right) = g(r) \hat{\boldsymbol{r}} (Ra T  -  Ra_s \, S)  + \boldsymbol{\nabla}^2 \boldsymbol{u}, 
+\label{eq:momentum_3D}
+\end{equation}
+\begin{equation}
+\frac{\partial T}{\partial t} + \boldsymbol{u} \cdot \nabla T  = \nabla^2 T,
+\label{eq:Temp_3D}
+\end{equation}
+\begin{equation}
+\frac{\partial S}{\partial t} + \boldsymbol{u} \cdot \nabla S =  \tau \nabla^2 S, 
+\label{eq:Solute_3D}
+\end{equation}
+\begin{equation}
+\boldsymbol{\nabla} \cdot \boldsymbol{u} = 0.
+\label{eq:Cont_3D}
+\end{equation}
+subject to the boundary conditions 
+\begin{equation}
+\boldsymbol{u}(r=r_1,\theta,\varphi) = 0, \boldsymbol{u}(r=r_2,\theta,\varphi) = 0, 
+\end{equation}
+\begin{equation}
+T(r=r_1,\theta,\varphi) = 1, T(r=r_2,\theta,\varphi) = 0, 
+\end{equation}
+\begin{equation}
+S(r=r_1,\theta,\varphi) = 1, S(r=r_2,\theta,\varphi) = 0.
+\end{equation}
+\label{eq:3D_EQNS}
+\end{subequations}
+As the system \eqref{eq:3D_EQNS} posses' the base state solution
+\begin{equation} 
+\boldsymbol{u} = 0, \quad T_0 = - A_T/r + B_T, \quad S_0 = - A_T/r + B_T,
+\end{equation}
+we write the temperature and solute fields as $T = T_0 + \Theta, \quad S = S_0 + \Sigma$.
+
+\subsection{Axisymmetric formulation}
+
+% 1) System in a sine/cosine basis
+Defining the velocity vector $\boldsymbol{u}$ in terms of the stream function $\psi(r,\theta,t)$, we write the axisymmetric flow as 
+\begin{equation}
+\boldsymbol{u} = \nabla \times (\psi/r \boldsymbol{\hat{\varphi}}),
+\end{equation}
+which in component form along with the vorticity is given by
+\begin{equation}
+\boldsymbol{u} = \bigg( \frac{1}{r^2 \sin \theta} \frac{\partial \psi \sin \theta}{\partial \theta}, - \frac{1}{r}\frac{\partial \psi}{\partial r}, 0 \bigg), \quad\quad \boldsymbol{\omega} = (0,0,\frac{- A^2 \psi}{r} ).
+\label{eq:Stream_Function_Numerical}
+\end{equation}
+This definition of the stream function is intentionally chosen as it allows \eqref{eq:3D_EQNS} to project onto a cosine/sine basis and thus avail of the discrete sine and cosine transforms. Substituting \eqref{eq:Stream_Function_Numerical} into \eqref{eq:3D_EQNS} and taking ( $\boldsymbol{\hat{\varphi}} \cdot \nabla \times$ ) of the momentum equation we obtain the following system, for which the flow is completely described by its azimuthal vorticity $A^2 \psi$, temperature $\Theta$ and solute $\Sigma$ fields which evolve according to
+
+\begin{subequations}
+\begin{equation}
+\frac{\partial A^2 \psi }{\partial t}  + \mathcal{J}( \psi, \psi) = Pr g(r) \bigg( Ra \frac{\partial \Theta}{\partial \theta} -  Ra_S \frac{\partial \Sigma}{\partial \theta} \bigg) + Pr A^2 A^2 \psi,
+\label{eq:PDE_Vorticity}
+\end{equation}
+\begin{equation}
+\frac{\partial \Theta}{\partial t} + J( \psi, T_0 + \Theta ) = \nabla^2 \Theta,
+\label{eq:PDE_Thermal}
+\end{equation}
+\begin{equation}
+\frac{\partial \Sigma}{\partial t} +J( \psi, S_0 + \Sigma) =  \tau \nabla^2 \Sigma,
+\label{eq:PDE_Solute}
+\end{equation}
+\label{eq:Full_Eqs_App}
+\end{subequations}
+
+\noindent where
+\begin{equation}
+J(\psi,f) = \frac{1}{r^2 \sin \theta} \frac{\partial (\psi \sin \theta) }{\partial  \theta} \frac{\partial f }{\partial  r} - \frac{1}{r^2} \frac{\partial \psi}{\partial r} \frac{\partial f }{\partial  \theta},
+\end{equation}
+\begin{equation}
+\mathcal{J}( \psi, \tilde{\psi}) = \frac{\partial }{\partial r} \bigg( ( r^2 u_r) \frac{A^2 \tilde{\psi}}{r^2} \bigg) + \frac{ \partial }{\partial \theta} \bigg( (r u_{\theta}) \frac{A^2 \tilde{\psi}}{r^2} \bigg).
+\end{equation}
+and
+\begin{equation}
+\nabla^2 = \frac{1}{r^2} \frac{\partial }{\partial r} \bigg( r^2 \frac{\partial }{\partial r} \bigg) + \frac{1}{r^2 \sin \theta} \frac{\partial}{\partial \theta} \bigg(\sin \theta \frac{\partial }{\partial \theta} \bigg), 
+\end{equation}
+\begin{equation}
+A^2 = \frac{\partial^2 }{\partial r^2} + \frac{1}{r^2 \sin \theta} \frac{\partial}{\partial \theta}\bigg(\sin \theta \frac{\partial }{\partial \theta} \bigg) - \frac{1}{r^2 \sin^2 \theta}.
+\end{equation}
+
+\noindent In this formulation the no-slip and perfect conductor boundary conditions become
+\begin{equation}
+ \psi = \psi_r = \Theta= \Sigma = 0, \quad \hbox{for} \; \; r = r_1,r_2. 
+\label{eq:bcs_App}
+\end{equation}
+while the symmetry conditions to be enforced at the symmetry axis are
+\begin{equation} 
+\psi(r, \theta) = \Theta_{\theta}(r, \theta) = \Sigma_{\theta}(r,\theta)=0, \quad \text{for} \quad \theta = 0,\pi, 
+\end{equation}
+\noindent which are naturally satisfied by the Legendre Polynomials as these are the basis functions of a axisymmetric sphere. By choosing the polar basis functions to be a summation of sine and cosine functions 
+\begin{equation}
+\psi = \sum_{k=1}^{N_{\theta}} \psi_k(r,t) \sin ( k \theta ), \quad \Theta = \frac{\Theta_0(r,t)}{2} + \sum_{k=1}^{N_{\theta}-1} \Theta_k(r,t) \cos ( k \theta ),
+\label{eq:Sine_Cosine_Basis}
+\end{equation}
+with $\Sigma$ defined as per $\Theta$, these conditions are naturally enforced. By ensuring that the following modes are zero
+\begin{equation}
+    \sum_{k=0}^{N_{\theta}/2 - 1} \big( \psi_{2k} + \Theta_{2k+1} + \Sigma_{2k+1} \big) = 0 
+\end{equation}
+we can restrict computations to equatorially symmetric solutions. 
+
+\subsection{Sine/Cosine Projection}
+
+To project \eqref{eq:Full_Eqs_App} onto the basis \eqref{eq:Sine_Cosine_Basis} we define the continuous Cosine transform of an even function $\Theta(r,\theta) = \Theta(r,\pi - \theta)$, by exploiting the symmetry of the integral, as
+\begin{equation}
+    \Theta_k = \frac{1}{L} \int_{-L}^{L} \Theta \cos \left(\frac{k \pi}{L} \theta \right) d \theta = \frac{2}{L} \int_0^{L} \Theta \cos \left(\frac{k \pi}{L} \theta \right) d \theta,
+\end{equation} 
+and similarly the sine transform of an odd function $\psi(r,\theta) = -\psi(r,\pi - \theta)$ as
+\begin{equation}
+    \psi_k = \frac{1}{L} \int_{-L}^{L} \psi \sin \left(\frac{k \pi}{L} \theta \right) d \theta = \frac{2}{L} \int_{0}^{L} \psi \sin \left(\frac{k \pi}{L} \theta \right) d \theta,
+\end{equation}
+where by letting $L = \pi$ we are considering the symmetric/asymmetric extensions of the projection to ensure correspondence with the discrete transform. In order to exploit the fact that we will use $N_{\theta}$ grid point evaluations when computing the nonlinear terms, we also define the discrete counterparts of these transforms. Letting $\theta_i = \frac{(2i + 1)}{2} \Delta \theta$ where $\Delta \theta = L/N_{\theta}$ we can, by once again exploiting the symmetry of these integrals, write the discrete cosine transform (DCT) as
+\begin{equation}
+\Theta_k = \frac{2}{L} \sum_{i=0}^{N_{\theta}-1}  \Theta(r,\theta_i,t) \cos(\frac{k \pi}{L} \theta_i) \Delta \theta, \quad \forall k \geq 0,
+\end{equation}
+which upon substituting in for $\Delta \theta$ and $\theta_i$ yields
+\begin{equation}
+    \Theta_k = \frac{2}{N} \sum_{i=0}^{N_{\theta}-1} \Theta(r,\theta_i,t) \cos(k\pi \frac{(2i + 1)}{2N}), \quad \forall k \geq 0.
+\end{equation}
+While for the discrete sine transform (DST) we have 
+\begin{equation}
+    \psi_k = \frac{2}{N} \sum_{i=0}^{N_{\theta}-1} \psi(r,\theta_i,t) \sin(k\pi \frac{(2i + 1)}{2N}), \quad \forall k \geq 1.
+\end{equation}
+Together these definitions correspond to the DCT-II and DST-II which have the appropriate symmetry at the end points of the domain. Their corresponding inverse transform is given by 
+\begin{equation}
+\psi_i = \sum_{k=1}^{N_{\theta}} \psi_k(r,t) \sin ( \frac{k \pi}{L} \theta_i ), \quad \Theta_i = \frac{\Theta_0(r,t)}{2} + \sum_{k=1}^{N_{\theta}-1} \Theta_k(r,t) \cos ( \frac{k \pi}{L} \theta_i ),
+\end{equation}
+which substituting in for $\Delta \theta$ and $\theta_i$ can be written as
+\begin{equation}
+\psi_i = \sum_{k=1}^{N_{\theta}} \psi_k(r,t) \sin ( k\pi \frac{(2i + 1)}{2N} ), \quad \Theta_i = \frac{\Theta_0(r,t)}{2} + \sum_{k=1}^{N_{\theta}-1} \Theta_k(r,t) \cos ( k\pi \frac{(2i + 1)}{2N} ),
+\label{eq:discrete_Sine_Cosine_Basis}
+\end{equation}
+and is equivalent to the DCT-III and DST-III. Using these transforms we now consider the projection of the linear terms and subsequently the nonlinear terms in \eqref{eq:Full_Eqs_App} into spectral space, beginning first with the linear terms. In what follows we use $j,k \in \mathbb{N}$ to refer to both wavenumbers and matrix indices as $\frac{k\pi}{L} = k$. In this subsection we have intentionally used $L$ as opposed to $\pi$ in order to present the transforms in greater generality and make them more closely resemble the numerical implementation used.
+
+\newpage
+
+\subsection{Linear terms}\label{sec:Linear_Terms_Formulation}
+
+\subsubsection{Sine terms}
+
+To represent $ \psi$ in a sine basis, we must determine the non-zero elements of $A^2 = A^2_r + \frac{A^2_{\theta}}{r^2}$. Denoting the spectral projection of the $\theta$ dependant component by $\hat{A}^2_{\theta}(j,k)$ we obtain 
+\begin{equation}
+\hat{A}^2_{\theta}(j,k) = \frac{2}{\pi} \int^{\pi}_{0} \sin(j \theta) A^2_{\theta} \sin(k \theta)d \theta, 
+\end{equation}
+such that 
+\begin{equation}
+\hat{A}^2_{\theta}(j,k) = \frac{2}{\pi} \int^{\pi}_{0} -k^2 \sin(j \theta) \sin(k \theta) + k \sin (j \theta) \cos(k \theta) \cot( \theta)  - \frac{\sin(j \theta) \sin(k \theta)}{\sin^2(\theta) } d \theta,
+\end{equation}
+\noindent implying that the only non-zero elements of $\hat{A}^2_{\theta}$ are 
+\begin{equation}
+a_{jk} = 
+\begin{cases}
+-j(j+1) \equiv b_j, \quad \text{for} \quad k = j, \\
+-2j \equiv \tilde{b}_j, \quad\quad \text{for} \quad k > j, \quad (j+k) \mod 2 = 0, \quad \text{for} \quad j,k \in [1,N_{\theta}].
+\end{cases}
+\end{equation}
+
+\noindent Letting $\mathcal{D} \in \mathbb{R}^{N_r \times N_r}$ denote the Chebyshev differentiation matrix in collocation space \citep{trefethen2000spectral}, the full operators $A^2, A^4$ in spectral space can be written as
+
+\begin{equation}
+\hat{A}^2 = (\hat{A}^2_r + \frac{\hat{A}^2_{\theta}}{r^2}) = 
+\begin{pmatrix}
+\mathcal{D}^2 + \frac{b_1}{r^2} \mathbb{I} & 0 & \frac{\tilde{b}_1}{r^2} \mathbb{I} & 0 & \cdots \\
+0 & \mathcal{D}^2 + \frac{b_2}{r^2} \mathbb{I} & 0 & \frac{\tilde{b}_2}{r^2} \mathbb{I} & \ddots \\
+0 & 0 & \mathcal{D}^2 + \frac{b_3}{r^2} \mathbb{I} & 0 & \ddots \\
+\vdots & \vdots & \ddots & \mathcal{D}^2 + \frac{b_4}{r^2} \mathbb{I} & \ddots \\
+\end{pmatrix},
+\label{eq:A2_Discrete_form}
+\end{equation}
+
+\noindent where $N_r$ is the number of radial collocation points and $\mathbb{I}$ denotes the identity matrix. The boundary condition $\psi(r) = 0, \, \text{for} \, r = 1,1+d$ have been enforced by omitting the bottom and top rows of $\mathcal{D}$ \citep{trefethen2000spectral}. We define the fourth order operator by
+
+\begin{equation}
+\begin{aligned}
+\hat{A}^4 &= (\hat{A}^2_r + r^{-2} \hat{A}^2_{\theta})(\hat{A}^2_r + r^{-2} \hat{A}^2_{\theta}) = \frac{\partial^4 }{\partial r^4} +\frac{\hat{A}^2_{\theta}}{r^2} \bigg( 2 \frac{\partial^2 }{\partial r^2} - \frac{4}{r} \frac{\partial }{\partial r} + \frac{6}{r^2} \bigg) + \frac{\hat{A}^2_{\theta} \hat{A}^2_{\theta}}{r^4}, \\
+&=\tilde{\mathcal{D}}^4 + \frac{\hat{A}^2_{\theta}}{r^2} \big( 2 \mathcal{D}^2 - \frac{4}{r} \mathcal{D} + 6 r^{-2} \big) + \frac{\hat{A}^2_{\theta} \hat{A}^2_{\theta}}{r^4}, \\
+&=\tilde{\mathcal{D}}^4 + \hat{A}^2_{\theta} \tilde{\mathcal{D}}^2 + \hat{A}^2_{\theta} \hat{A}^2_{\theta} \frac{\mathbb{I}}{r^4},
+\end{aligned}
+\end{equation}
+\noindent where 
+\begin{equation}
+\begin{pmatrix}
+\tilde{\mathcal{D}}^4 + b_1 \tilde{\mathcal{D}}^2 + \frac{c_1}{r^4} \mathbb{I} & 0 & \tilde{b}_1 \tilde{\mathcal{D}}^2 + \frac{\tilde{c}_1}{r^4} \mathbb{I} & 0 & \cdots \\
+0 & \tilde{\mathcal{D}}^4 + b_2 \tilde{\mathcal{D}}^2 + \frac{c_2}{r^4} \mathbb{I} & 0 & \tilde{b}_2 \tilde{\mathcal{D}}^2 + \frac{\tilde{c}_2}{r^4} \mathbb{I} & \ddots \\
+0 & 0 & \tilde{\mathcal{D}}^4 + b_3 \tilde{\mathcal{D}}^2 + \frac{c_3}{r^4} \mathbb{I} & 0 & \ddots \\
+\vdots & \ddots & \ddots & \tilde{\mathcal{D}}^4 + b_4 \tilde{\mathcal{D}}^2 + \frac{c_4}{r^4} \mathbb{I} & \ddots \\
+\end{pmatrix}, 
+\label{eq:A4_Discrete_form}
+\end{equation}
+
+\noindent and $c_k, \tilde{c}_k$ denote entries of the upper-triangular matrix $\hat{A}^2_{\theta} \hat{A}^2_{\theta}$. The operator $\tilde{\mathcal{D}}^4$ enforces both the Dirichlet and Neumann boundary conditions following \cite{trefethen2000spectral}. The final terms to consider are the mixed terms $\partial_{\theta} \Theta, \, \partial_{\theta} \Sigma$, which must be projected onto a sine basis but contain terms proportional to cosine and sine. Expanding the integral we obtain
+
+\begin{equation}
+\boldsymbol{k}_{c}(j,k) = \frac{2}{\pi} \int^{\pi}_{0} -k \sin( j \theta) \sin(k \theta) d \theta, 
+\end{equation}
+
+\begin{equation}
+\boldsymbol{k}_{c}(j,k) = - k, \quad \text{for} \quad k = j, \text{for} \quad k \in [0,N_{\theta}-1],  j \in [1,N_{\theta}]
+\end{equation}
+
+\noindent such that the full operator $\boldsymbol{k}_{c}$ can be written in spectral space as
+
+\begin{equation}
+\boldsymbol{k}_{c} =
+\begin{pmatrix}
+0 & -\mathbb{I} & 0 & 0 &\cdots \\
+0 & 0 & -2\mathbb{I} & 0 & \cdots \\
+0 & 0 & 0 & -3\mathbb{I} & \ddots \\
+\vdots & \vdots & \vdots & \ddots & \ddots \\
+\end{pmatrix}, \quad
+\text{where} \quad \mathbb{I} \in \mathbb{R}^{N_r \times N_r}.
+\label{eq:G_THETA}
+\end{equation}
+
+\subsubsection{Cosine terms}
+
+\noindent To represented the equations for $\Theta,\Sigma$ in a cosine basis, we must determine the non-zero elements of the spherical Laplacian $\nabla^2 = \nabla^2_r + \nabla^2_{\theta}/r^2$
+\begin{align*}
+    \hat{\nabla}^2_{\theta}(j,k) &= \frac{2}{\pi} \int^{\pi}_{0} \cos(j \theta) \nabla^2_{\theta} \cos(k \theta) d \theta, \\
+    &= \frac{2}{\pi} \int^{\pi}_{0} -k^2 \cos(j \theta) \cos(k \theta) - k \cos (j \theta) \sin(k \theta) \cot( \theta) d \theta,
+\end{align*}
+\noindent implying that the only non-zero elements of $\hat{\nabla}^2_{\theta}$ are 
+\begin{equation}
+\hat{\nabla}^2_{jk} = 
+\begin{cases}
+0 \quad\quad\quad\quad \text{for} \quad k = j = 0,  \\
+-k(k + 1) \equiv b_k, \quad \text{for} \quad k = j, \quad k > 0  \\
+-2k \equiv \tilde{b}_k, \quad\quad \text{for} \quad k > j, \quad (j+k) \mod 2 = 0, \quad \text{for} \quad j>0,k \in [0,N_{\theta}-1], \\
+\tilde{b}_k/2, \quad\quad \text{for} \quad k > j, \quad (j+k) \mod 2 = 0, \quad \text{for} \quad j=0,k \in [0,N_{\theta}-1].
+\end{cases}
+\end{equation}
+
+\noindent The full operator can thus be written in spectral space as
+\begin{equation}
+\hat{\nabla}^2 = 
+\begin{pmatrix}
+\mathcal{D}^2 + \frac{2}{r} \mathcal{D} & 0 & \frac{\tilde{b}_2}{\boldsymbol{2}r^2}& 0 &\cdots \\
+0 & \mathcal{D}^2 + \frac{2}{r} \mathcal{D} + \frac{b_1}{r^2} & 0 & \frac{\tilde{b}_3}{r^2} & \ddots \\
+0 & 0 & \mathcal{D}^2 + \frac{2}{r} \mathcal{D} + \frac{b_2}{r^2} & 0 & \ddots \\
+\vdots & \ddots & \ddots & \mathcal{D}^2 + \frac{2}{r} \mathcal{D} + \frac{b_ 3}{r^2} & \ddots \\
+\end{pmatrix},
+\label{eq:Nabla2_Discrete}
+\end{equation}
+where the division by two in the first line arises from our definition of the Cosine series \eqref{eq:Sine_Cosine_Basis}. The final terms to consider are the mixed terms $J(\psi, T_0), \, J(\psi, C_0)$, which must be projected onto a sine basis but contain terms proportional to cosine and sine. Expanding the integral we obtain
+\begin{align*}
+\hat{J}_{\theta}(j,k) &= \frac{2}{\pi} \int^{\pi}_{0} \frac{\cos(j \theta) }{\sin(\theta)} \frac{\partial ( \sin(k \theta) \sin(\theta ) }{\partial \theta} d \theta\, \\ 
+&= \frac{2}{\pi} \int^{\pi}_{0}  k \cos(j \theta) \cos(k \theta) + \cos( j \theta) \sin (k \theta) \cot( \theta) d \theta, 
+\end{align*}
+
+\begin{equation}
+J_{jk} = 
+\begin{cases}
+0 \quad\quad\quad, \quad \text{for} \quad k = j = 0, \\
+k + 1 \equiv b_j, \quad \text{for} \quad k = j, \\
+2 \equiv \tilde{b}_j, \quad\quad \text{for} \quad k > j, \quad (j+k) \mod 2 = 0, \quad \text{for} \quad j \in [1,N_{\theta}-1],  k \in [1,N_{\theta}], \\
+\tilde{b}_j/2, \quad\quad \text{for} \quad k > j, \quad (j+k) \mod 2 = 0, \quad \text{for} \quad j =0,  k \in [1,N_{\theta}],
+\end{cases}
+\end{equation}
+
+\noindent such that the full operator $J_{\theta}$ can be written in spectral space as
+
+\begin{equation}
+\hat{J} = 
+\begin{pmatrix}
+0 & \mathbb{I} & 0 & \mathbb{I}   & 0 \\
+b_1 \mathbb{I} & 0 & 2 \mathbb{I} & 0 & \ddots \\
+0 & b_2 \mathbb{I} & 0 & 2 \mathbb{I} & \ddots \\
+\vdots & 0 & b_ 3 \mathbb{I} & \ddots & \ddots \\
+\end{pmatrix}, \quad
+\text{where} \quad \mathbb{I} \in \mathbb{R}^{N_r \times N_r},
+\label{eq:J_THETA}
+\end{equation}
+where we have divided the first line by two following \eqref{eq:Sine_Cosine_Basis}.
+
+
+\subsection{Nonlinear terms}\label{sec:Non_Linear_Terms_Formulation}
+
+We expand the nonlinear terms to obtain products of sine and cosine terms only, doing so ensures they project onto a sine basis as required. This gives 
+
+\begin{equation}
+\begin{aligned}
+r \boldsymbol{\hat{\varphi}}.\nabla \times [\boldsymbol{u} \times \boldsymbol{\omega}] &= - \frac{\partial }{\partial r} \bigg( u_r r \omega_{\varphi} \bigg) - \frac{\partial }{\partial \theta} \bigg( u_{\theta} \omega_{\varphi}  \bigg),\\
+		&= \frac{\partial }{\partial r} \bigg( u_r A^2 \psi \bigg)+ \frac{\partial }{\partial \theta} \bigg( r^{-1}u_{\theta} A^2 \psi  \bigg), \\
+		&= \frac{\partial }{\partial r} \bigg( J_{\theta} \psi \frac{A^2 \psi}{r^2} \bigg) - \frac{\partial }{\partial \theta} \bigg( \mathcal{D}\psi \frac{A^2 \psi}{r^2}  \bigg), \\   
+		&= \bigg( \mathcal{D} J_{\theta} \psi \bigg) \frac{A^2 \psi}{r^2} + J_{\theta} \psi  \bigg( \mathcal{D} \frac{A^2 \psi}{r^2} \bigg)  - \bigg(  \frac{\partial }{\partial \theta} \mathcal{D}\psi \bigg) \frac{A^2 \psi}{r^2}  - \mathcal{D}\psi \bigg(  \frac{\partial }{\partial \theta} \frac{A^2 \psi}{r^2} \bigg).
+\label{eq:Num_StreamF}
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+ \mathcal{J}(\psi,\psi)  & =  \frac{\partial }{\partial r} \bigg( ( r^2 u_r) \frac{A^2 \psi}{r^2} \bigg) - \frac{\partial^2 \psi }{\partial \theta \partial r} \frac{A^2 \psi}{r^2} - \frac{\partial \psi }{\partial r} \frac{ \partial }{\partial \theta} \bigg( \frac{A^2 \psi}{r^2} \bigg).\\
+ 				& =  \frac{\partial }{\partial r} \bigg( ( r^2 u_r) \frac{A^2 \psi}{r^2} \bigg) - \frac{\partial^2 \psi }{\partial \theta \partial r} \frac{A^2 \psi}{r^2} - \frac{\partial \psi }{\partial r} \frac{ \partial }{\partial \theta} \bigg( \frac{A^2 \psi}{r^2} \bigg),\\
+ 				 & = \mathcal{D} \big( \big[ J_{\theta} \psi \big] \big[ \omega_{\varphi} \big] \big)  - \big[ \frac{ \partial (\mathcal{D} \psi )}{\partial \theta} \big] \big[  \omega_{\varphi} \big]  - \big[ \mathcal{D} \psi \big] \big[ \frac{ \partial \omega_{\varphi} }{\partial \theta}  \big],
+\end{aligned}
+\label{eq:VORT_NL}
+\end{equation} 		
+\noindent where $\mathcal{D} = \frac{\partial }{\partial r}, \omega_{\varphi} = \frac{A^2 \psi}{r^2} \, \& \, J_{\theta}$ is given by \eqref{eq:J_THETA}. Similarly for the temperature and solute equations we obtain
+\begin{equation}
+\begin{aligned}		 
+J(\psi,\Theta) & = \frac{1}{r^2 \sin \theta} \frac{\partial (\psi \sin \theta) }{\partial  \theta} \frac{\partial \Theta }{\partial  r} - \frac{1}{r^2} \frac{\partial \psi}{\partial r} \frac{\partial \Theta }{\partial  \theta} = \frac{1}{r^2} \bigg( \big[ J_{\theta} \psi \big] \big[ \mathcal{D} \Theta \big] - \big[ \mathcal{D} \psi \big] \big[ \frac{\partial \Theta}{\partial \theta} \big] \bigg).
+\end{aligned}
+\label{eq:TEMP_NL}
+\end{equation}
+Denoting the discrete cosine and sine transforms by $\hat{u} = dct(u), \, \hat{v} =  dst(v)$ and their inverse by $u= idct(\hat{u}), \, v = idst(\hat{v})$ we compute the terms involving derivatives with respect to $\theta$ in spectral space.  Taking the inverse cosine transform of 
+\begin{equation}
+idct(J_{\theta} \hat{\psi}), \; idct(k \hat{\omega}_{\varphi}), \; idct(k\mathcal{D} \hat{\psi}), \; idct(\mathcal{D} \hat{\Sigma}), \; idct(\mathcal{D} \hat{\Theta}), \quad \text{for} \quad k \in [1,N_{\theta}]
+\end{equation}
+\noindent and the inverse sine transform of
+\begin{equation}
+idst(\hat{\omega}_{\varphi}), \; idst(\mathcal{D} \hat{\psi}), \; idst(k \hat{\Sigma}), \; idst(k \hat{\Theta}), \quad \text{for} \quad k \in [0,N_{\theta}-1]
+\end{equation}
+ we evaluate the nonlinear terms in physical space, denoted by 
+\begin{equation}
+\mathcal{J}(\psi,\psi)  = \mathcal{D}_{i,j} \bigg( idct \big[   J_{\theta} \hat{\psi} \big] \odot idst\big[ \hat{\omega}_{\varphi} \big] \bigg)_{i,j}  - \bigg( idct\big[ k (\mathcal{D} \hat{\psi} ) \big] \odot idst\big[  \hat{\omega}_{\varphi} \big]  + idst\big[ \mathcal{D} \hat{\psi} \big] \odot idct\big[ k \hat{\omega}_{\varphi} \big] \bigg),
+\label{eq:VORT_NL_SPEC}
+\end{equation} 		
+for the vorticity equation, where $\odot$ denotes the dealiased Haddamard or element-wise product and
+\begin{equation}
+r^2 J(\hat{\psi},\hat{\Theta})  = idct\big[ J_{\theta} \hat{\psi} \big] \odot idct\big[ \mathcal{D} \hat{\Theta} \big] - idst\big[ \mathcal{D} \hat{\psi} \big] \odot idst\big[ k \hat{\Theta} \big],
+\label{eq:TEMP_NL_SPEC}
+\end{equation}
+\noindent for the temperature and solute equations. Having computed these terms in spectral space, we take their sine and cosine transforms respectively to return to spectral space. In our computer code and we adopt the vector notation
+\begin{equation} 
+\boldsymbol{\hat{X}} = \begin{pmatrix} \hat{\psi} \; \; \hat{\Theta} \; \; \hat{\Sigma} \end{pmatrix}^T 
+\end{equation}
+where $\hat{\psi} = \left( \psi_1(r), \psi_2(r), \cdots, \psi_{N_{\theta}}(r) \right), \; \hat{\Theta} = \left( \Theta_0(r), \Theta_1(r), \cdots, \Theta_{N_{\theta}-1}(r) \right)$ and $\hat{\Sigma}$ as per $\hat{\Theta}$. With this notation the system reads
+\begin{equation}
+\hat{\mathcal{M}} \partial_t \boldsymbol{\hat{X}} = \mathcal{\boldsymbol{F}}(\boldsymbol{X},\mu) = \hat{\mathcal{L}}(\mu)\boldsymbol{\hat{X}} + \hat{\boldsymbol{N}} ( \boldsymbol{X}, \boldsymbol{X} ),
+\label{Full_Eqs_Matrix_SPEC}
+\end{equation}
+where $\hat{\mathcal{M}}, \hat{\mathcal{L}}$ are linear differential operators of the form
+\begin{equation}
+\mathcal{M} = \begin{pmatrix} \hat{A}^2 & 0 & 0 \\ 0 & r^2 & 0 \\ 0 & 0 & r^2 \end{pmatrix}, \quad
+\mathcal{L} = \begin{pmatrix} 
+Pr \, \hat{A}^2 \hat{A}^2 & Pr \, Ra g(r) (-\boldsymbol{k}_c) & -Pr \, Ra_S g(r) (-\boldsymbol{k}_c) \\  -T'_0(r) \hat{J}_{\theta} &  r^2 \hat{\nabla}^2 & 0 \\ -S'_0(r) \hat{J}_{\theta} & 0 & \tau \, r^2 \hat{\nabla}^2 
+\end{pmatrix},
+\end{equation}
+$\mu$ is the vector of parameters and $\hat{\boldsymbol{N}}$ is the nonlinear term given by
+\begin{equation}
+\hat{\boldsymbol{N}} ( \boldsymbol{X}, \boldsymbol{X} )  = - \begin{pmatrix} 
+\hat{\mathcal{J}}(\psi,\psi)  \\ 
+r^2 \hat{J}(\psi,\Theta) \\ 
+r^2 \hat{J}(\psi,\Sigma) 
+\end{pmatrix}.
+\end{equation}
+
+\subsection{Calculating diagnostics}
+
+The convective Nusselt number is obtained by volume integrating \eqref{eq:PDE_Thermal} with respect to the boundary conditions. We evalute this as 
+\begin{equation}
+\begin{aligned}
+Nu - 1 &= \frac{\int_{-L}^L \partial_r \Theta(r,\theta) \sin(  \theta) d \theta  }{\int_{-L}^L \partial_r T_0(r) \sin(  \theta) d \theta}, \\
+% Nu - 1 &= \frac{ \int_{-L}^L \partial_r \hat{T}_0(r) \sin( \theta) d \theta  + 2 \sum_{k=1}^{N_{\theta} - 1}  \int_{-L}^L \partial_r \hat{T}_k(r) \cos\left( \frac{k \pi}{L} \theta \right) \sin ( \theta) d \theta  }{\int_{-L}^L \partial_r T_0(r) \sin( \theta) d \theta}, \\
+Nu - 1 &= \frac{r^2}{A_T} \left( \partial_r \hat{\Theta}_{0}(r) + \sum_{k=1}^{N_{\theta}/2 - 1}  \frac{ 2 \partial_r \hat{\Theta}_{2k}(r) }{1-{(2k)}^2} \right),  \quad \text{at} \quad r = r_1 \; \text{or} \; r_2.
+\end{aligned}
+\label{eq:Nusselt_Temperature_Spectral}    
+\end{equation}
+which provides an additional check for our numerical method as $Nu$ should be identical on either sphere. The volume integrated kinetic energy is computed as
+\begin{equation}
+\mathcal{E} = \frac{1}{2V} \int_{-L}^L \int_{R_1}^{R_2} ( |u_r|^2 + |u_{\theta}|^2 ) \; r^2 \sin (\theta) \; dr \; d \theta.
+\label{eq:Kinetic_Energy_Spectral}    
+\end{equation}
+where $V = (2/3)(r_2^3 - r_1^3)$.
+
+
+\clearpage
+
+
+\section{Solvers}
+
+\subsection{Time-stepping}
+
+To perform time-stepping we use an Euler-Implicit scheme as follow
+\begin{equation}
+\underbrace{\begin{pmatrix}
+(\hat{A}^2 - \Delta t \Pran \hat{A}^4) \\
+r^2 ( \mathbb{I} - \Delta t \hat{\nabla}^2) \\
+r^2 ( \mathbb{I} - \Delta t \tau \hat{\nabla}^2)
+\end{pmatrix} }_{ \mathcal{P} } 
+\underbrace{\begin{pmatrix}
+\hat{\psi}^{n+1} \\
+\hat{\Theta}^{n+1} \\
+\hat{\Sigma}^{n+1} 
+\end{pmatrix}}_{ \boldsymbol{X}^{n+1} } 
+=
+\begin{pmatrix}
+\hat{A}^2 \hat{\psi}^n  \\
+r^2 \hat{\Theta}^{n} \\
+r^2 \hat{\Sigma}^{n}
+\end{pmatrix}
++ \Delta t 
+\underbrace{
+\begin{pmatrix} 
+\Pran g(r) (-\boldsymbol{k}) \big ( Ra \hat{\Theta}^n - Ra_S \hat{\Sigma}^n ) - \hat{\mathcal{J}}( \psi^n,\psi^n) \\
+- r^2 \hat{J}(\psi^n,T_0) - r^2 \hat{J}(\psi^n,\Theta^n) \\
+- r^2 \hat{J}(\psi^n,S_0) - r^2 \hat{J}(\psi^n,\Sigma^n)
+\end{pmatrix}
+}_{N(\boldsymbol{X}^n)},
+\label{eq:timeStep}
+\end{equation}
+where $\mathcal{P}$ refers to the matrix of linear (preconditioning) operators. % and $-\boldsymbol{k}$ the differentiation of $\Theta,\Sigma$. 
+
+% Alternatively, to perform time-stepping we use a Crank-Nicolson scheme for the linear terms and an Euler explicit scheme for the nonlinear terms 
+% \begin{equation}
+% \begin{pmatrix}
+% (\hat{A}^2 - \Delta t/2 \Pran \hat{A}^4) \\
+% r^2 ( \mathbb{I} - \Delta t/2 \hat{\nabla}^2) \\
+% r^2 ( \mathbb{I} - \Delta t/2 \tau \hat{\nabla}^2)
+% \end{pmatrix}
+% \begin{pmatrix}
+% \hat{\psi}^{n+1} \\
+% \hat{T}^{n+1} \\
+% \hat{S}^{n+1} 
+% \end{pmatrix}
+% =
+% \begin{pmatrix}
+% (\hat{A}^2 + \Delta t \Pran \hat{A}^4) \\
+% r^2 ( \mathbb{I} + \Delta t/2 \hat{\nabla}^2) \\
+% r^2 ( \mathbb{I} + \Delta t/2 \tau \hat{\nabla}^2)
+% \end{pmatrix}
+% \begin{pmatrix}
+% \hat{\psi}^{n} \\
+% \hat{T}^{n} \\
+% \hat{S}^{n} 
+% \end{pmatrix}
+% + \Delta t N(\boldsymbol{X}^n),
+% \label{eq:timeStep_CNAB1}
+% \end{equation}
+
+\subsection{Newton-iteration}
+
+Steady-states are computed using a matrix-free formulation by subtracting successive steps from each side of \eqref{eq:timeStep}. This formulation is obtained by setting time-derivatives in \eqref{eq:Full_Eqs_App} to zero, discretising the system as per \eqref{eq:timeStep} and Taylor expanding the equations about $\boldsymbol{X}^n$ 
+\begin{subequations}
+\begin{equation}
+D \hat{\mathcal{F}}|_{\boldsymbol{X}^n} \Delta \hat{\boldsymbol{X}} = \hat{\mathcal{F}}(\boldsymbol{X}^n), \quad \text{with} \quad -\Delta \hat{\boldsymbol{X}}  = \big( \hat{\boldsymbol{X}}^{n+1} - \hat{\boldsymbol{X}}^n \big),
+\label{eq:Newton_Iteration}
+\end{equation}
+where
+\begin{equation}
+\hat{\mathcal{F}}(\boldsymbol{X}^n) = 
+\begin{pmatrix}
+\Pran \hat{A}^4 \hat{\psi}^n  \\
+\; \; r^2 \hat{\nabla}^2 \hat{\Theta}^{n} \\
+r^2 \tau \hat{\nabla}^2 \hat{\Sigma}^{n}
+\end{pmatrix} 
++ N(\boldsymbol{X}^n),
+\end{equation}
+\begin{equation}
+D \hat{\mathcal{F}}|_{\boldsymbol{X}^n} \delta \hat{\boldsymbol{X}} = 
+\begin{pmatrix}
+\Pran \hat{A}^4 \delta \hat{\psi} \\
+r^2 \hat{\nabla}^2 \delta \hat{\Theta} \\
+r^2 \tau \hat{\nabla}^2 \delta \hat{\Sigma}
+\end{pmatrix}
++
+\underbrace{
+\begin{pmatrix}
+\Pran g(r) (-\boldsymbol{k}) \big ( Ra \delta \hat{\Theta} - Ra_S \delta \hat{\Sigma} ) - \hat{\mathcal{J}}( \psi^n,\delta \psi) - \hat{\mathcal{J}}( \delta \psi, \psi^n) \\
+- r^2 \hat{J}(\delta \psi,T_0) - r^2 \hat{J}(\delta \psi,\Theta^n)  - r^2 \hat{J}(\psi^n,\delta \Theta) \\
+- r^2 \hat{J}(\delta \psi,S_0) - r^2 \hat{J}( \delta \psi,\Sigma^n)  - r^2 \hat{J}(\psi^n, \delta \Sigma) 
+\end{pmatrix}
+}_{\tilde{N}}.
+\end{equation}
+\end{subequations}
+% and it has been assumed that $\mathcal{O}(|\delta \hat{\boldsymbol{X}}|^2)$ terms are small. 
+Multiplying both sides of \eqref{eq:Newton_Iteration} by the inverse of the preconditioner 
+\begin{subequations}
+\begin{equation}
+\mathcal{P}^{-1} \Delta t D \hat{\mathcal{F}}|_{\boldsymbol{X}^n} \delta \hat{\boldsymbol{X}} = \mathcal{P}^{-1} \Delta t \hat{\mathcal{F}}(\boldsymbol{X}^n), \quad \text{with} \quad -\delta \hat{\boldsymbol{X}}  = \big( \hat{\boldsymbol{X}}^{n+1} - \hat{\boldsymbol{X}}^n \big),
+\label{eq:Newton_Iteration_Pre}
+\end{equation}
+and re-arranging we obtain
+\begin{equation}
+\mathcal{P}^{-1} \Delta t \hat{\mathcal{F}}(\boldsymbol{X}^n) = 
+\begin{pmatrix}
+(\hat{A}^2 - \Delta t \Pran \hat{A}^4)^{-1} \big[ \hat{A}^2 \hat{\psi}^n + \Delta t N_{\psi} \big] - \hat{\psi}^n \\
+(r^2 - r^2 \Delta t \; \; \hat{\nabla}^2)^{-1} \big[ r^2 \hat{\Theta}^n + \Delta t N_{\Theta} \big] - \hat{\Theta}^n \\
+(r^2 - r^2 \Delta t \tau \hat{\nabla}^2)^{-1} \big[ r^2 \hat{\Sigma}^n + \Delta t N_{\Sigma} \big] - \hat{\Sigma}^n
+\end{pmatrix},
+\end{equation}
+% ~~~~
+\begin{equation}
+\mathcal{P}^{-1} \Delta t D \hat{\mathcal{F}}|_{\boldsymbol{X}^n} \delta \hat{\boldsymbol{X}} = 
+\begin{pmatrix}
+(\hat{A}^2 - \Delta t \Pran \hat{A}^4)^{-1} \big[ \hat{A}^2 \delta \hat{\psi} + \Delta t \tilde{N}_{\psi}(\delta \hat{\psi}) \big] - \delta \hat{\psi} \\
+(r^2 - r^2 \Delta t \; \; \hat{\nabla}^2)^{-1} \big[ r^2 \delta \hat{\Theta} + \Delta t \tilde{N}_{\Theta} ( \delta \hat{\Theta} ) \big] - \delta \hat{\Theta} \\
+(r^2 - r^2 \Delta t \tau \hat{\nabla}^2)^{-1} \big[ r^2 \delta \hat{\Sigma} + \Delta t \tilde{N}_{\Sigma}(\delta \hat{\Sigma}) \big] - \delta \hat{\Sigma}
+\end{pmatrix}.
+\end{equation}
+\label{eq:Preconditioned_Steady_State}
+\end{subequations}
+In this formulation our goal is to use a large $\Delta t \sim 10^4$, in contrast to time-stepping, so as to converge to a steady state in few steps. In both the time-stepping and steady-state solver formulations $\hat{\psi}^n, \hat{\Theta}^n, \hat{\Sigma}^n \in \mathbb{R}^{Nr \times N_{\theta}}$ such that direct inversion of the pre-conditioning matrix requires $~\mathcal{O}( (NrN_{\theta})^3 )$ operations, however as we shall outline these operators can be inverted in $~\mathcal{O}( Nr^2 N_{\theta} )$, a complexity equivalent to the right hand size.
+
+\subsection{Inversion of the linear Terms}
+
+We first consider inversion of the Laplacian operators appearing in the steady-state equations \eqref{eq:Preconditioned_Steady_State} for $\Theta, \Sigma$ and then consider the fourth order operator appearing in the equation for $\psi$. Throughout this section we use the time-step can be used to account for any small parameters such as $\Pran,\tau$ that typically appear in front of the linear operators. 
+
+Letting $j,k$ denote the row and column indices the general equation to be solved is
+\begin{equation}
+\big( r^2 - r^2 \Delta t  \hat{\nabla}^2 \big)_{j,k} f_k = g_j,
+\end{equation}
+which can be written in component form following \eqref{eq:Nabla2_Discrete} as
+\begin{equation}
+\begin{aligned} 
+\bigg[ r^2 - \Delta t \big( r^2 \mathcal{D}^2 + 2 r \mathcal{D}                  \big) \bigg] f_0  &=  g_0 + \Delta t \sum_{k = 2}^{N_{\theta}-1} \frac{\tilde{b}_k}{2} f_k, \\
+\bigg[  r^2 - \Delta t \big( r^2 \mathcal{D}^2 + 2 r \mathcal{D} + b_j \mathbb{I}  \big) \bigg] f_j  &=  g_j + \Delta t \sum_{k = j + 2}^{N_{\theta}-1} \tilde{b}_k f_k, \quad 0 < j < N_{\theta},
+\end{aligned}
+\label{eq:INV_NALBA2_dt}
+\end{equation}
+where $f_k,g_j \in \mathbb{R}^{Nr}$. Solving \eqref{eq:INV_NALBA2_dt} using back substitution requires solving a linear system for all $N_{\theta}$ modes costing $\mathcal{O}( Nr^3 N_{\theta} )$. By pre-computing the matrix inverse of all $j$ components and then solving, reduces the operations required when solving \eqref{eq:INV_NALBA2_dt} to addition and matrix multiplication costing in total $\mathcal{O}( Nr^2 N_{\theta} )$ in memory and computational complexity. By further exploiting the fact that the rows of odd and even indices decouple, allows the system to be back-solved in parallel as two problems of dimension $N_{\theta}/2$. Finally by back-solving the odd and even sub-spaces of \eqref{eq:INV_NALBA2_dt} from their last to first row, allows the sum appearing on the right hand side to be evaluated in $\mathcal{O}(Nr N_{\theta}/2)$ operations. We pursue this computationally efficient strategy for the remaining terms. 
+
+% (A^2 - ∆t*Pr*A^2A^2)ψ = g
+For the $\psi$ equation, the problem we must solve is
+\begin{equation}
+\big( \hat{A}^2_{j,k} - \Delta t \hat{A}^4_{j,k} \big) f_k = g_j.
+\end{equation}
+which in component form following \eqref{eq:A2_Discrete_form} and \eqref{eq:A4_Discrete_form} can be written as
+\begin{equation}
+\begin{aligned}
+\bigg[ (\mathcal{D}^2 + \frac{b_j}{r^2}) - \Delta t \bigg( \tilde{\mathcal{D}}^4 + b_j \tilde{ \mathcal{D}^2 } + \frac{b^2_j}{r^4} \bigg) \bigg] f_j  &=  g_j + \Delta t \; \tilde{b}_j \bigg[ \big( \tilde{\mathcal{D}^2} + \frac{b_j}{r^4} \big) \sum_{k = j + 2}^{N_{\theta} -1} f_k \\
+ & + \frac{1}{r^4} \bigg( \sum_{k = j + 2}^{N_{\theta} -1} b_k f_k + \sum_{k = j + 2}^{N_{\theta} -1} \tilde{b}_k \sum_{l = k + 2}^{N_{\theta} -1} f_{l} \bigg) \bigg] - \frac{\tilde{b}_j}{r^2} \sum_{k = j + 2}^{N_{\theta} -1} f_k,
+\end{aligned}
+\label{eq:INV_A4_dt}
+\end{equation}
+As was the case for \eqref{eq:INV_NALBA2_dt}, the rows of odd and even indices decouple in \eqref{eq:INV_A4_dt}, such that it can be solved in parallel as two problems of dimension $N_{\theta}/2$. Back-solving the odd and even sub-spaces of \eqref{eq:INV_A4_dt} from their last to first row allows the sums appearing on the right hand side to be evaluated in $\mathcal{O}(Nr^2 N_{\theta}/2)$ and $\mathcal{O}(Nr N_{\theta}/2)$ operations respectively, while the direct matrix inversion, which is pre-computed rendering it a matrix multiplication, costs $\mathcal{O}(Nr^2 N_{\theta}/2)$.
+
+Using the same routines we can then treat \eqref{eq:timeStep} by setting $\Delta t \ll 1$ as required when time-stepping or \eqref{eq:Newton_Iteration} by setting $\Delta t \gg 1$ as required for Newton iteration.
+
+
+\section{Code Validation}
+
+\subsection{Linear validation}
+
+To validate our \href{https://github.com/mannixp/SpectralDoubleDiffusiveConvection.git}{\texttt{python code}} we compute the eigenvalues of the linearised problem by: (I) using a Legendre polynomial basis in order to solve the radially dependent eigenvalue problem in Dedalus \cite{burns2020dedalus} using the \texttt{EVP} method, (II) using our own hand coded Chebyshev collocation method and (III) by discretising the latitudinal direction using a Fourier pseudo-spectral method (that which we use for the nonlinear problem). Should the eigenvalues predicted by time-stepping this final formulation correspond with the previous cases, we thus validate the spatial and temporal discretisation used. We use the slope of the norm $||\boldsymbol{X}||_2$ as a function of time to predict $\lambda$ that is by solving 
+\[   
+\langle \boldsymbol{X}, \frac{d\boldsymbol{X}}{dt} \rangle  = \frac{1}{2} \frac{d}{dt} ||\boldsymbol{X}||_2 = \langle \boldsymbol{X}, L\boldsymbol{X} \rangle = \lambda ||\boldsymbol{X}||_2,
+\]
+which for $t \gg 1$ is equivalent to picking out the dominant eigenvalue-eigenvector pair. Eigenvalues and the corresponding resolutions arethethe given in table \ref{table:Linear_Validation}. 
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ c | c | c|  c | c }
+        \hline
+        Method & $Nr$ & $N_{\theta}$ & $\Delta t$ & $\lambda$  \\
+        I & 20 & - & - & 0.0018195 \\
+        II & 20 & - & - & 0.0018196 \\
+        III & 20 & 10 & 1.25e-03 & 0.001765 \\
+        III & 20 & 10 & 6.125e-03 & 0.001792 \\
+        \hline
+    \end{tabular}
+    \caption{Validation of the linear problem for mode $l =2$ with parameters $\Pran = \tau =1, Ra_s=500, d = 2, Ra = 7268.365$. Reducing the time-step when using a first order Euler implicit/explicit scheme we converge to the true eigenvalue.}
+    \label{table:Linear_Validation}
+\end{table}
+
+
+\subsection{Non-linear validation}
+To validate the non-linear computations we verify that the Nusselt numbers at the inner and outer shells are equal, and that the Nusslet number and volume averaged kinetic energy calculated match those of Dedalus \cite{burns2020dedalus} matches with our code. Results of these tests are shown in table \ref{table:Non_Linear_Validation}.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ c | c | c|  c | c  }
+        \hline
+        Code &  Case  & $Nr, N_{\theta}, \Delta t$ & $\mathcal{E}$ & $Nu - 1$  \\
+        \hline
+        Dedalus   & I & 16,32,0.075 & 0.0295 & 1.483e-03 \\
+        This code & I & 16,32,0.075 & 0.0270 & 1.370e-03 \\
+        Dedalus   & II &24,48,0.075 & 0.0567/0.0488 & 2.588e-03/2.228e-03 \\
+        This code & II &24,48,0.075 & 0.0486 & 2.228e-03 \\
+        Dedalus   & III &24,48,0.075 & 0.0313 & 1.423e-03 \\
+        This code & III &24,48,0.075 & 0.0312 & 1.423e-03 \\ % Requires imposing symmetry
+        \hline
+    \end{tabular}
+    \caption{Validation of the non-linear problem for: Case I $Ra =6780,\Pran=10,d=2$ (even parity), Case II $Ra = 2360,\Pran=1,d=0.353$ (even parity) and Case III $Ra = 2280,\Pran=1,d=0.31325$ (odd parity) In all cases a SBDF2 scheme was used and $Ra_s=0$.}
+    \label{table:Non_Linear_Validation}
+\end{table}
+
+\newpage
+
+
+
+\section{Pseudo arc length continuation}
+
+To trace steady solution branches and investigate their parameter dependence we wish to solve the system $ \boldsymbol{\mathcal{F}}(\boldsymbol{X}, \mu ) = 0 $. While Newton's method provides the steady state solution, it relies on the Jacobian matrix $\mathcal{D F}_{\boldsymbol{X}}$ which is singular at turning points. To follow solution branches around turning points we use a pseudo-arclength method. Rather than performing continuation in $\mu$, a new parameter $s$ which approximates the arc-length parameter is introduced and we seek solutions of the augmented system.
+\begin{equation}
+\begin{aligned}
+\boldsymbol{\mathcal{F}}(\boldsymbol{X}(s), \mu(s) ) & = 0, \\
+p(\boldsymbol{X}(s), \mu(s),s) = \delta \langle \dot{\boldsymbol{X}_0} , \boldsymbol{X} - \boldsymbol{X}_0 \rangle +  (1-\delta)\dot{\mu}_0 ( \mu -\mu_0 ) - ds  & = 0 ,
+\end{aligned}
+\end{equation}
+where $\dot{\boldsymbol{X}}$ and $\dot{\mu}$ denote derivatives with respect to $s$. Additionally, we impose
+\begin{equation}
+\delta || \dot{\boldsymbol{X}}(s) ||^2 + (1-\delta)|\dot{\mu}(s)|^2 = 1,
+\label{arc_con}
+\end{equation}
+which approximates the arc-length condition. The second condition $p(\boldsymbol{X}(s),\mu(s),s) = 0$, requires that $(\boldsymbol{X}(s),\mu(s))$ lies in a plane normal to the tangent. From the total derivative we obtain
+\begin{equation}
+d \boldsymbol{\mathcal{F}} = D \mathcal{F}_{\boldsymbol{X}} \dot{\boldsymbol{X}} + D\boldsymbol{\mathcal{F}}_{\mu} \dot{\mu} = 0.
+\end{equation}
+Writing $\boldsymbol{\xi} = - \big( D \mathcal{F}_{\boldsymbol{X}} \big)^{-1} D\boldsymbol{\mathcal{F}}_{\mu}$ and using constraint \eqref{arc_con} we have
+\begin{equation}
+\dot{\boldsymbol{X}}= \dot{\mu} \boldsymbol{\xi}, \quad \dot{\mu} = \pm \frac{1}{\sqrt{1+\delta( ||\boldsymbol{\xi}||^2-1) }},
+\end{equation}
+where the sign of $\dot{\mu}$ may be changed to enable following a new branch. Using these relations the continuation is performed by a combination of predictor and corrector steps. The predictor step yields
+\begin{equation}
+\begin{aligned}
+\boldsymbol{X}^{n+1}(s + \Delta s) &= \boldsymbol{X}^n(s) + \dot{\boldsymbol{X}}^n\Delta s, \\
+\mu^{n+1}(s + \Delta s) &= \mu^n(s) + \dot{\mu}^n \Delta s, 
+\end{aligned}
+\end{equation}
+where $\Delta s$ is chosen to be a small increment along the solution arc. The corrector step is obtained by writing the augmented system $\boldsymbol{G} = ( \boldsymbol{\mathcal{F}} , \; p )$ and its state vector $\boldsymbol{Y} = ( \boldsymbol{X} , \; \mu )$ and Taylor expanding to obtain 
+\begin{equation}
+\boldsymbol{G} ( \boldsymbol{Y}^n + \Delta \boldsymbol{Y} ) = \boldsymbol{G}(\boldsymbol{Y}^n) + \boldsymbol{G}_{\boldsymbol{Y}} (\boldsymbol{Y}^n) \Delta \boldsymbol{Y}  + \mathcal{O}(| \Delta \boldsymbol{Y}^2 |),
+\label{psuedo_iter}
+\end{equation}
+where the Jacobian matrix is 
+\begin{equation}
+\boldsymbol{G}_{\boldsymbol{Y}} = \begin{pmatrix} D\mathcal{F}_{\boldsymbol{X}} &  D\boldsymbol{\mathcal{F}}_{\mu}  \\ p_{\boldsymbol{X}} & p_{\mu}   \end{pmatrix} = \begin{pmatrix} D \mathcal{F}_{\boldsymbol{X}} & D\boldsymbol{\mathcal{F}}_{\mu}  \\ \delta \dot{\boldsymbol{X}_0}^T & (1-\delta)\dot{\mu}_0   \end{pmatrix}. 
+\end{equation}
+At a fixed point the left hand side of \eqref{psuedo_iter} vanishes, so that the solution of the system can be corrected or updated by iterating $\boldsymbol{Y}^n$ according to  
+\begin{equation}
+\boldsymbol{Y}^{n+1} = \boldsymbol{Y}^n - \boldsymbol{G}^{-1}_{\boldsymbol{Y}} \boldsymbol{G}( \boldsymbol{Y}^n).
+\end{equation}
+where we have chosen to parametrise the arc length condition \eqref{arc_con} using $\delta$. This parameter may be adjusted to favour Newton searches in the $\boldsymbol{X}$ or $\mu$ directions and thus tune the continuation. Typically we require $\delta \sim \frac{1}{N_r N_{\theta}}$ to scale the solution norm such that it remains $\mathcal{O}(1)$ relative to $\dot{\mu}_0 \Delta \mu$ in the arc-length condition.
+
+
+\bibliographystyle{apalike}
+\bibliography{References}
+
+\end{document}

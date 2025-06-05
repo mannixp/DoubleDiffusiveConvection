@@ -17,7 +17,10 @@ python plot_solutions.py
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
-from matplotlib.colors import ListedColormap, BoundaryNorm
+
+import sys, os
+sys.path.append(os.path.abspath("../"))
+from Plot_Tools import Spectral_To_Gridpoints, cmap
 
 # Uncomment the following lines to use LaTeX for text rendering
 plt.rcParams.update({
@@ -26,72 +29,6 @@ plt.rcParams.update({
     "font.sans-serif": "Helvetica",
     'text.latex.preamble': r'\usepackage{amsfonts}'
 })
-
-
-def cmap(Z, RES=12):
-    """
-    Generate a custom colormap and normalization for visualizing data.
-
-    This function creates a colormap based on the 'RdBu_r' colormap, with a 
-    specified number of levels. The color corresponding to the value 0 is 
-    replaced with white to emphasize the zero level. The function also 
-    returns the levels and a normalization object for mapping data values 
-    to the colormap.
-
-    Parameters:
-    -----------
-    Z : numpy.ndarray
-        A 2D array of data values for which the colormap will be created. 
-        The maximum absolute value in `Z` determines the range of the colormap.
-    RES : int, optional
-        The number of levels in the colormap. Default is 12. It must be even.
-        This parameter is used to create evenly spaced levels for the colormap.
-    Returns:
-    --------
-    levels : numpy.ndarray
-        An array of evenly spaced levels for the colormap, symmetric around 0.
-    custom_cmap : matplotlib.colors.ListedColormap
-        A custom colormap with the color corresponding to 0 replaced by white.
-    norm : matplotlib.colors.BoundaryNorm
-        A normalization object for mapping data values to the colormap.
-
-    Notes:
-    ------
-    - The function assumes that the input array `Z` is 2D and contains numeric 
-      values.
-
-    Example:
-    --------
-    >>> import numpy as np
-    >>> Z = np.random.randn(10, 10)
-    >>> levels, custom_cmap, norm = cmap(Z)
-    """
-
-    print(np.asarray([min(Z.flatten()), max(Z.flatten())]))
-    Max = np.max(abs(Z))
-
-    assert RES % 2 == 0  # ensure RES is even
-
-    # Define levels (must include 0)
-    levels = np.linspace(-Max, Max, RES)
-
-    # Create RdBu_r colormap with 12 colors
-    original_cmap = plt.get_cmap('RdBu_r', len(levels) - 1)
-    colors = original_cmap(np.arange(original_cmap.N))
-
-    # Find the index of the bin that contains 0
-    # Since levels are symmetric, 0 will be in the middle bin
-    zero_bin_index = (len(levels) - 1) // 2  # e.g., 6 if 12 bins
-
-    # Replace that color with white
-    colors[zero_bin_index] = [1, 1, 1, 1]  # RGBA for white
-    custom_cmap = ListedColormap(colors)
-
-    # Create normalization
-    norm = BoundaryNorm(levels, custom_cmap.N)
-
-    return levels, custom_cmap, norm
-
 
 def transform(file):
     """
@@ -196,9 +133,9 @@ files = ['Planarfigure2_2/SOL_sn1.plt','Planarfigure2_2/SOL_sn2.plt',
 # Create a contour plot
 for i, file in enumerate(files):
     X, Z, T = transform(dir + file)
-    levels, custom_cmap, norm = cmap(T)
-    axs[::-1, 0][i].contour(X, Z, T, levels=levels, cmap=custom_cmap, norm=norm)
-    axs[::-1, 0][i].contourf(X, Z, T, levels=levels, cmap=custom_cmap, norm=norm)
+    levels, custom_cmap, norm = cmap(T, RES=12, epsilon=0.01)
+    axs[::-1, 0][i].contour(X, Z, T, levels=levels, cmap=custom_cmap)#, norm=norm)
+    axs[::-1, 0][i].contourf(X, Z, T, levels=levels, cmap=custom_cmap)#, norm=norm)
     axs[::-1, 0][i].set_xticks([])
     axs[::-1, 0][i].set_yticks([])
 

@@ -5,6 +5,7 @@ from Main import result
 from Matrix_Operators import cheb_radial
 
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap, BoundaryNorm
 # plt.rcParams.update({
 #     "text.usetex": True,
 #     "font.family": "sans-serif",
@@ -13,10 +14,43 @@ import matplotlib.pyplot as plt
 # })
 
 
-
 # All checked below here	
 RES = 10
 count_s = 12
+
+def cmap(Z, RES=12, epsilon=0.1):
+	RES = RES + (RES % 2)
+	half_res = RES // 2
+
+	vmax = np.max(np.abs(Z.flatten()))
+	vmin = -vmax
+
+	# Ensure epsilon is meaningful relative to the data
+	if epsilon >= vmax:
+		raise ValueError("Epsilon must smaller so that levels are strictly increasing.")
+
+	# Create negative and positive bins avoiding overlap
+	neg_edges = np.linspace(vmin, -epsilon, half_res + 1)
+	pos_edges = np.linspace(epsilon, vmax, half_res + 1)
+
+	# Combine levels without duplication
+	levels = np.concatenate((neg_edges[:-1], [-epsilon, epsilon], pos_edges[1:]))
+	
+	# Check increasing
+	if not np.all(np.diff(levels) > 0):
+		raise ValueError("Levels must be strictly increasing.")
+
+	n_bins = len(levels) - 1
+	base_cmap = plt.get_cmap('RdBu_r', n_bins)
+	colors = base_cmap(np.arange(n_bins))
+
+	# Middle bin (around zero) set to white
+	zero_bin = half_res
+	colors[zero_bin] = [1, 1, 1, 1]
+
+	custom_cmap = ListedColormap(colors)
+	norm = BoundaryNorm(levels, ncolors=n_bins)
+	return levels, custom_cmap, norm
 
 def Spherical_Plot(filename, frame, Include_Base_State=True):
 	
